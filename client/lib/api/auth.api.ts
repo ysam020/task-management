@@ -4,6 +4,7 @@ import {
   RegisterData,
   AuthResponse,
   ApiResponse,
+  User,
 } from "../types";
 
 export const authApi = {
@@ -38,5 +39,13 @@ export const authApi = {
   // Logout user
   logout: async (refreshToken: string): Promise<void> => {
     await axiosInstance.post("/auth/logout", { refreshToken });
+  },
+
+  // Get current user
+  getCurrentUser: async (): Promise<User> => {
+    const response = await axiosInstance.get<ApiResponse<{ user: User }>>(
+      "/auth/me"
+    );
+    return response.data.data!.user;
   },
 };

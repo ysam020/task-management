@@ -33,16 +33,23 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 
   // Check if user is authenticated on mount
   useEffect(() => {
-    const checkAuth = () => {
+    const checkAuth = async () => {
       const token = tokenStorage.getAccessToken();
       if (token) {
-        // In a real app, you might want to validate the token or fetch user data
-        // For now, we'll just check if the token exists
-        setIsLoading(false);
+        try {
+          // Fetch current user from API
+          const userData = await authApi.getCurrentUser();
+          setUser(userData);
+        } catch (error) {
+          // Token is invalid, clear it
+          console.error("Auth check failed:", error);
+          tokenStorage.clearTokens();
+          setUser(null);
+        }
       } else {
         setUser(null);
-        setIsLoading(false);
       }
+      setIsLoading(false);
     };
 
     checkAuth();
@@ -115,7 +122,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   const value: AuthContextType = {
     user,
     isLoading,
-    isAuthenticated: !!user || tokenStorage.isAuthenticated(),
+    isAuthenticated: !!user,
     login,
     register,
     logout,

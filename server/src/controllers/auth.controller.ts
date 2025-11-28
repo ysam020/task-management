@@ -5,6 +5,7 @@ import {
   LoginInput,
   RefreshTokenInput,
 } from "../utils/validations";
+import { AuthRequest } from "../middlewares/authentication.middleware";
 
 export class AuthController {
   async register(req: Request, res: Response, next: NextFunction) {
@@ -60,6 +61,19 @@ export class AuthController {
       res.status(200).json({
         status: "success",
         message: "Logged out successfully",
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getCurrentUser(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      res.status(200).json({
+        status: "success",
+        data: {
+          user: req.user,
+        },
       });
     } catch (error) {
       next(error);
