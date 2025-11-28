@@ -1,12 +1,11 @@
 "use client";
 
+import { useCallback, useEffect, useState } from "react";
+import { Box, TextField, MenuItem, Grid } from "@mui/material";
+import { Search } from "@mui/icons-material";
 import { useTasks } from "@/contexts/TaskContext";
-import { Input } from "@/components/ui/Input";
-import { Select } from "@/components/ui/Select";
 import { debounce } from "@/lib/utils/helper";
 import { TaskStatus } from "@/lib/types";
-import { useCallback, useEffect, useState } from "react";
-import styles from "./styles.module.css";
 
 export function TaskFilters() {
   const { filters, setFilters } = useTasks();
@@ -43,37 +42,53 @@ export function TaskFilters() {
   };
 
   return (
-    <div className={styles.filters}>
-      <Input
-        type="text"
-        placeholder="Search tasks..."
-        value={searchInput}
-        onChange={(e) => setSearchInput(e.target.value)}
-        className={styles.searchInput}
-      />
+    <Box sx={{ mb: 4 }}>
+      <Grid container spacing={2}>
+        <Grid item xs={12} md={6}>
+          <TextField
+            fullWidth
+            placeholder="Search tasks..."
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            InputProps={{
+              startAdornment: (
+                <Search sx={{ mr: 1, color: "text.secondary" }} />
+              ),
+            }}
+          />
+        </Grid>
 
-      <Select
-        value={filters.status || "all"}
-        onChange={(e) => handleStatusChange(e.target.value)}
-        options={[
-          { value: "all", label: "All Status" },
-          { value: TaskStatus.PENDING, label: "Pending" },
-          { value: TaskStatus.IN_PROGRESS, label: "In Progress" },
-          { value: TaskStatus.COMPLETED, label: "Completed" },
-        ]}
-      />
+        <Grid item xs={12} sm={6} md={3}>
+          <TextField
+            select
+            fullWidth
+            label="Status"
+            value={filters.status || "all"}
+            onChange={(e) => handleStatusChange(e.target.value)}
+          >
+            <MenuItem value="all">All Status</MenuItem>
+            <MenuItem value={TaskStatus.PENDING}>Pending</MenuItem>
+            <MenuItem value={TaskStatus.IN_PROGRESS}>In Progress</MenuItem>
+            <MenuItem value={TaskStatus.COMPLETED}>Completed</MenuItem>
+          </TextField>
+        </Grid>
 
-      <Select
-        value={`${filters.sortBy}-${filters.sortOrder}`}
-        onChange={(e) => handleSortChange(e.target.value)}
-        options={[
-          { value: "createdAt-desc", label: "Newest First" },
-          { value: "createdAt-asc", label: "Oldest First" },
-          { value: "title-asc", label: "Title A-Z" },
-          { value: "title-desc", label: "Title Z-A" },
-          { value: "updatedAt-desc", label: "Recently Updated" },
-        ]}
-      />
-    </div>
+        <Grid item xs={12} sm={6} md={3}>
+          <TextField
+            select
+            fullWidth
+            label="Sort By"
+            value={`${filters.sortBy}-${filters.sortOrder}`}
+            onChange={(e) => handleSortChange(e.target.value)}
+          >
+            <MenuItem value="createdAt-desc">Newest First</MenuItem>
+            <MenuItem value="createdAt-asc">Oldest First</MenuItem>
+            <MenuItem value="title-asc">Title A-Z</MenuItem>
+            <MenuItem value="title-desc">Title Z-A</MenuItem>
+            <MenuItem value="updatedAt-desc">Recently Updated</MenuItem>
+          </TextField>
+        </Grid>
+      </Grid>
+    </Box>
   );
 }

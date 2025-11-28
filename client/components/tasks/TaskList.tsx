@@ -1,60 +1,90 @@
 "use client";
 
+import { Box, Typography, CircularProgress, Button, Grid } from "@mui/material";
 import { useTasks } from "@/contexts/TaskContext";
 import { TaskCard } from "./TaskCard";
-import { Button } from "@/components/ui/Button";
-import { Loader } from "@/components/ui/Loader";
-import styles from "./styles.module.css";
 
 export function TaskList() {
   const { tasks, isLoading, pagination, setFilters, filters } = useTasks();
 
   if (isLoading) {
-    return <Loader />;
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: 200,
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
   }
 
   if (!tasks || tasks.length === 0) {
     return (
-      <div className={styles.emptyState}>
-        <h3>No tasks found</h3>
-        <p>Create your first task to get started!</p>
-      </div>
+      <Box
+        sx={{
+          textAlign: "center",
+          py: 8,
+          backgroundColor: "background.paper",
+          borderRadius: 2,
+        }}
+      >
+        <Typography variant="h6" gutterBottom>
+          No tasks found
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          Create your first task to get started!
+        </Typography>
+      </Box>
     );
   }
 
   return (
-    <div className={styles.taskListContainer}>
-      <div className={styles.taskList}>
+    <Box>
+      <Grid container spacing={2}>
         {tasks.map((task) => (
-          <TaskCard key={task.id} task={task} />
+          <Grid item xs={12} key={task.id}>
+            <TaskCard task={task} />
+          </Grid>
         ))}
-      </div>
+      </Grid>
 
       {pagination && pagination.totalPages > 1 && (
-        <div className={styles.pagination}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: 2,
+            mt: 4,
+          }}
+        >
           <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setFilters({ ...filters, page: filters.page - 1 })}
+            variant="outlined"
+            size="small"
+            onClick={() => setFilters({ ...filters, page: filters.page! - 1 })}
             disabled={!pagination.hasPrev}
           >
             Previous
           </Button>
 
-          <span className={styles.paginationInfo}>
+          <Typography variant="body2" color="text.secondary">
             Page {pagination.page} of {pagination.totalPages}
-          </span>
+          </Typography>
 
           <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setFilters({ ...filters, page: filters.page + 1 })}
+            variant="outlined"
+            size="small"
+            onClick={() => setFilters({ ...filters, page: filters.page! + 1 })}
             disabled={!pagination.hasNext}
           >
             Next
           </Button>
-        </div>
+        </Box>
       )}
-    </div>
+    </Box>
   );
 }

@@ -2,21 +2,29 @@
 
 import { Formik, Form, Field } from "formik";
 import Link from "next/link";
+import {
+  Box,
+  Typography,
+  TextField,
+  Button,
+  CircularProgress,
+} from "@mui/material";
 import { useAuth } from "@/contexts/AuthContext";
 import { registerSchema } from "@/lib/validations/auth.schema";
-import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
-import styles from "../styles.module.css";
 
 export default function RegisterPage() {
   const { register } = useAuth();
 
   return (
     <>
-      <div className={styles.authHeader}>
-        <h1 className={styles.authTitle}>Create Account</h1>
-        <p className={styles.authSubtitle}>Sign up to get started</p>
-      </div>
+      <Box sx={{ textAlign: "center", mb: 4 }}>
+        <Typography variant="h4" component="h1" gutterBottom fontWeight="bold">
+          Create Account
+        </Typography>
+        <Typography variant="body1" color="text.secondary">
+          Sign up to get started
+        </Typography>
+      </Box>
 
       <Formik
         initialValues={{ name: "", email: "", password: "" }}
@@ -32,63 +40,80 @@ export default function RegisterPage() {
         }}
       >
         {({ isSubmitting, errors, touched }) => (
-          <Form className={styles.authForm}>
-            <Field name="name">
-              {({ field }: any) => (
-                <Input
-                  {...field}
-                  type="text"
-                  label="Name"
-                  placeholder="Enter your name"
-                  error={touched.name && errors.name ? errors.name : undefined}
-                />
-              )}
-            </Field>
+          <Form>
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+              <Field name="name">
+                {({ field }: any) => (
+                  <TextField
+                    {...field}
+                    type="text"
+                    label="Name"
+                    placeholder="Enter your name"
+                    fullWidth
+                    error={touched.name && Boolean(errors.name)}
+                    helperText={touched.name && errors.name}
+                  />
+                )}
+              </Field>
 
-            <Field name="email">
-              {({ field }: any) => (
-                <Input
-                  {...field}
-                  type="email"
-                  label="Email"
-                  placeholder="Enter your email"
-                  error={
-                    touched.email && errors.email ? errors.email : undefined
-                  }
-                />
-              )}
-            </Field>
+              <Field name="email">
+                {({ field }: any) => (
+                  <TextField
+                    {...field}
+                    type="email"
+                    label="Email"
+                    placeholder="Enter your email"
+                    fullWidth
+                    error={touched.email && Boolean(errors.email)}
+                    helperText={touched.email && errors.email}
+                  />
+                )}
+              </Field>
 
-            <Field name="password">
-              {({ field }: any) => (
-                <Input
-                  {...field}
-                  type="password"
-                  label="Password"
-                  placeholder="Create a password"
-                  error={
-                    touched.password && errors.password
-                      ? errors.password
-                      : undefined
-                  }
-                  helperText="Min 8 characters, 1 uppercase, 1 lowercase, 1 number"
-                />
-              )}
-            </Field>
+              <Field name="password">
+                {({ field }: any) => (
+                  <TextField
+                    {...field}
+                    type="password"
+                    label="Password"
+                    placeholder="Enter your password"
+                    fullWidth
+                    error={touched.password && Boolean(errors.password)}
+                    helperText={touched.password && errors.password}
+                  />
+                )}
+              </Field>
 
-            <Button type="submit" fullWidth isLoading={isSubmitting}>
-              Register
-            </Button>
+              <Button
+                type="submit"
+                variant="contained"
+                size="large"
+                fullWidth
+                disabled={isSubmitting}
+                startIcon={isSubmitting && <CircularProgress size={20} />}
+              >
+                Register
+              </Button>
+            </Box>
           </Form>
         )}
       </Formik>
 
-      <div className={styles.authFooter}>
-        Already have an account?{" "}
-        <Link href="/login" className={styles.authLink}>
-          Login here
-        </Link>
-      </div>
+      <Box sx={{ textAlign: "center", mt: 3 }}>
+        <Typography variant="body2" color="text.secondary">
+          Already have an account?{" "}
+          <Link
+            href="/login"
+            style={{
+              color: "#4f46e5",
+              fontWeight: 500,
+              textDecoration: "none",
+            }}
+          >
+            Login here
+          </Link>
+        </Typography>
+      </Box>
     </>
   );
 }

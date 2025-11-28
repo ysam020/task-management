@@ -1,17 +1,19 @@
 "use client";
 
 import { Formik, Form, Field } from "formik";
+import {
+  TextField,
+  MenuItem,
+  Button,
+  Box,
+  CircularProgress,
+} from "@mui/material";
 import { Task, TaskStatus } from "@/lib/types";
 import { useTasks } from "@/contexts/TaskContext";
 import {
   createTaskSchema,
   updateTaskSchema,
 } from "@/lib/validations/task.schema";
-import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
-import { Textarea } from "@/components/ui/TextArea";
-import { Select } from "@/components/ui/Select";
-import styles from "./styles.module.css";
 
 interface TaskFormProps {
   task?: Task;
@@ -48,65 +50,70 @@ export function TaskForm({ task, onSuccess, onCancel }: TaskFormProps) {
         }
       }}
     >
-      {({ isSubmitting, errors, touched }) => (
-        <Form className={styles.taskForm}>
-          <Field name="title">
-            {({ field }: any) => (
-              <Input
-                {...field}
-                type="text"
-                label="Title"
-                placeholder="Enter task title"
-                error={touched.title && errors.title ? errors.title : undefined}
-              />
-            )}
-          </Field>
+      {({ isSubmitting, errors, touched, values, handleChange }) => (
+        <Form>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            <Field name="title">
+              {({ field }: any) => (
+                <TextField
+                  {...field}
+                  label="Title"
+                  placeholder="Enter task title"
+                  fullWidth
+                  error={touched.title && Boolean(errors.title)}
+                  helperText={touched.title && errors.title}
+                />
+              )}
+            </Field>
 
-          <Field name="description">
-            {({ field }: any) => (
-              <Textarea
-                {...field}
-                label="Description"
-                placeholder="Enter task description (optional)"
-                rows={4}
-                error={
-                  touched.description && errors.description
-                    ? errors.description
-                    : undefined
-                }
-              />
-            )}
-          </Field>
+            <Field name="description">
+              {({ field }: any) => (
+                <TextField
+                  {...field}
+                  label="Description"
+                  placeholder="Enter task description (optional)"
+                  fullWidth
+                  multiline
+                  rows={4}
+                  error={touched.description && Boolean(errors.description)}
+                  helperText={touched.description && errors.description}
+                />
+              )}
+            </Field>
 
-          <Field name="status">
-            {({ field }: any) => (
-              <Select
-                {...field}
-                label="Status"
-                options={[
-                  { value: TaskStatus.PENDING, label: "Pending" },
-                  { value: TaskStatus.IN_PROGRESS, label: "In Progress" },
-                  { value: TaskStatus.COMPLETED, label: "Completed" },
-                ]}
-                error={
-                  touched.status && errors.status ? errors.status : undefined
-                }
-              />
-            )}
-          </Field>
+            <Field name="status">
+              {({ field }: any) => (
+                <TextField
+                  {...field}
+                  select
+                  label="Status"
+                  fullWidth
+                  error={touched.status && Boolean(errors.status)}
+                  helperText={touched.status && errors.status}
+                >
+                  <MenuItem value={TaskStatus.PENDING}>Pending</MenuItem>
+                  <MenuItem value={TaskStatus.IN_PROGRESS}>
+                    In Progress
+                  </MenuItem>
+                  <MenuItem value={TaskStatus.COMPLETED}>Completed</MenuItem>
+                </TextField>
+              )}
+            </Field>
 
-          <div className={styles.formActions}>
-            <Button
-              variant="outline"
-              onClick={onCancel}
-              disabled={isSubmitting}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" isLoading={isSubmitting}>
-              {isEditing ? "Update Task" : "Create Task"}
-            </Button>
-          </div>
+            <Box sx={{ display: "flex", gap: 1, justifyContent: "flex-end" }}>
+              <Button onClick={onCancel} disabled={isSubmitting}>
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                variant="contained"
+                disabled={isSubmitting}
+                startIcon={isSubmitting && <CircularProgress size={16} />}
+              >
+                {isEditing ? "Update Task" : "Create Task"}
+              </Button>
+            </Box>
+          </Box>
         </Form>
       )}
     </Formik>

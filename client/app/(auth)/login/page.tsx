@@ -2,21 +2,29 @@
 
 import { Formik, Form, Field } from "formik";
 import Link from "next/link";
+import {
+  Box,
+  Typography,
+  TextField,
+  Button,
+  CircularProgress,
+} from "@mui/material";
 import { useAuth } from "@/contexts/AuthContext";
 import { loginSchema } from "@/lib/validations/auth.schema";
-import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
-import styles from "../styles.module.css";
 
 export default function LoginPage() {
   const { login } = useAuth();
 
   return (
     <>
-      <div className={styles.authHeader}>
-        <h1 className={styles.authTitle}>Welcome Back</h1>
-        <p className={styles.authSubtitle}>Login to your account</p>
-      </div>
+      <Box sx={{ textAlign: "center", mb: 4 }}>
+        <Typography variant="h4" component="h1" gutterBottom fontWeight="bold">
+          Welcome Back
+        </Typography>
+        <Typography variant="body1" color="text.secondary">
+          Login to your account
+        </Typography>
+      </Box>
 
       <Formik
         initialValues={{ email: "", password: "" }}
@@ -32,50 +40,66 @@ export default function LoginPage() {
         }}
       >
         {({ isSubmitting, errors, touched }) => (
-          <Form className={styles.authForm}>
-            <Field name="email">
-              {({ field }: any) => (
-                <Input
-                  {...field}
-                  type="email"
-                  label="Email"
-                  placeholder="Enter your email"
-                  error={
-                    touched.email && errors.email ? errors.email : undefined
-                  }
-                />
-              )}
-            </Field>
+          <Form>
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+              <Field name="email">
+                {({ field }: any) => (
+                  <TextField
+                    {...field}
+                    type="email"
+                    label="Email"
+                    placeholder="Enter your email"
+                    fullWidth
+                    error={touched.email && Boolean(errors.email)}
+                    helperText={touched.email && errors.email}
+                  />
+                )}
+              </Field>
 
-            <Field name="password">
-              {({ field }: any) => (
-                <Input
-                  {...field}
-                  type="password"
-                  label="Password"
-                  placeholder="Enter your password"
-                  error={
-                    touched.password && errors.password
-                      ? errors.password
-                      : undefined
-                  }
-                />
-              )}
-            </Field>
+              <Field name="password">
+                {({ field }: any) => (
+                  <TextField
+                    {...field}
+                    type="password"
+                    label="Password"
+                    placeholder="Enter your password"
+                    fullWidth
+                    error={touched.password && Boolean(errors.password)}
+                    helperText={touched.password && errors.password}
+                  />
+                )}
+              </Field>
 
-            <Button type="submit" fullWidth isLoading={isSubmitting}>
-              Login
-            </Button>
+              <Button
+                type="submit"
+                variant="contained"
+                size="large"
+                fullWidth
+                disabled={isSubmitting}
+                startIcon={isSubmitting && <CircularProgress size={20} />}
+              >
+                Login
+              </Button>
+            </Box>
           </Form>
         )}
       </Formik>
 
-      <div className={styles.authFooter}>
-        Don&apos;t have an account?{" "}
-        <Link href="/register" className={styles.authLink}>
-          Register here
-        </Link>
-      </div>
+      <Box sx={{ textAlign: "center", mt: 3 }}>
+        <Typography variant="body2" color="text.secondary">
+          Don't have an account?{" "}
+          <Link
+            href="/register"
+            style={{
+              color: "#4f46e5",
+              fontWeight: 500,
+              textDecoration: "none",
+            }}
+          >
+            Register here
+          </Link>
+        </Typography>
+      </Box>
     </>
   );
 }

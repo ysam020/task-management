@@ -111,10 +111,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     } catch (error) {
       console.error("Logout error:", error);
     } finally {
-      // Clear tokens and user data
+      // Clear tokens and user
       tokenStorage.clearTokens();
       setUser(null);
-      toast.success("Logged out successfully");
+      toast.success("Logged out successfully!");
       router.push("/login");
     }
   };

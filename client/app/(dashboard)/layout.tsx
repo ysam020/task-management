@@ -2,11 +2,10 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { Box, CircularProgress } from "@mui/material";
 import { useAuth } from "@/contexts/AuthContext";
 import { TaskProvider } from "@/contexts/TaskContext";
-import { Loader } from "@/components/ui/Loader";
 import { Header } from "@/components/layout/Header";
-import styles from "./styles.module.css";
 
 export default function DashboardLayout({
   children,
@@ -23,7 +22,18 @@ export default function DashboardLayout({
   }, [isAuthenticated, isLoading, router]);
 
   if (isLoading) {
-    return <Loader fullPage />;
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "100vh",
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
   }
 
   if (!isAuthenticated) {
@@ -32,10 +42,21 @@ export default function DashboardLayout({
 
   return (
     <TaskProvider>
-      <div className={styles.dashboardLayout}>
+      <Box
+        sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}
+      >
         <Header />
-        <main className={styles.dashboardMain}>{children}</main>
-      </div>
+        <Box
+          component="main"
+          sx={{
+            flexGrow: 1,
+            backgroundColor: "background.default",
+            py: 3,
+          }}
+        >
+          {children}
+        </Box>
+      </Box>
     </TaskProvider>
   );
 }

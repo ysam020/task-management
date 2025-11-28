@@ -1,17 +1,25 @@
 "use client";
 
 import { useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardActions,
+  Typography,
+  Button,
+  Chip,
+  Box,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  CircularProgress,
+} from "@mui/material";
+import { Edit, Delete, ToggleOn } from "@mui/icons-material";
 import { Task } from "@/lib/types";
 import { useTasks } from "@/contexts/TaskContext";
-import { Button } from "@/components/ui/Button";
-import { Modal } from "@/components/ui/Modal";
 import { TaskForm } from "./TaskForm";
-import {
-  formatDate,
-  getStatusColor,
-  getStatusLabel,
-} from "@/lib//utils/helper";
-import styles from "./styles.module.css";
+import { formatDate, getStatusColor, getStatusLabel } from "@/lib/utils/helper";
 
 interface TaskCardProps {
   task: Task;
@@ -49,94 +57,127 @@ export function TaskCard({ task }: TaskCardProps) {
 
   return (
     <>
-      <div className={styles.taskCard}>
-        <div className={styles.taskHeader}>
-          <h3 className={styles.taskTitle}>{task.title}</h3>
-          <span
-            className={`${styles.taskStatus} ${
-              styles[getStatusColor(task.status)]
-            }`}
+      <Card
+        sx={{
+          transition: "box-shadow 0.3s",
+          "&:hover": {
+            boxShadow: 6,
+          },
+        }}
+      >
+        <CardContent>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-start",
+              mb: 2,
+            }}
           >
-            {getStatusLabel(task.status)}
-          </span>
-        </div>
+            <Typography variant="h6" component="h3" sx={{ flex: 1, pr: 2 }}>
+              {task.title}
+            </Typography>
+            <Chip
+              label={getStatusLabel(task.status)}
+              color={getStatusColor(task.status) as any}
+              size="small"
+            />
+          </Box>
 
-        {task.description && (
-          <p className={styles.taskDescription}>{task.description}</p>
-        )}
+          {task.description && (
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+              {task.description}
+            </Typography>
+          )}
 
-        <div className={styles.taskFooter}>
-          <span className={styles.taskDate}>{formatDate(task.createdAt)}</span>
+          <Typography variant="caption" color="text.secondary">
+            {formatDate(task.createdAt)}
+          </Typography>
+        </CardContent>
 
-          <div className={styles.taskActions}>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleToggle}
-              isLoading={isToggling}
-            >
-              Toggle Status
-            </Button>
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => setIsEditModalOpen(true)}
-            >
-              Edit
-            </Button>
-            <Button
-              variant="danger"
-              size="sm"
-              onClick={() => setIsDeleteModalOpen(true)}
-            >
-              Delete
-            </Button>
-          </div>
-        </div>
-      </div>
+        <CardActions sx={{ justifyContent: "flex-end", px: 2, pb: 2 }}>
+          <Button
+            variant="outlined"
+            size="small"
+            startIcon={
+              isToggling ? <CircularProgress size={16} /> : <ToggleOn />
+            }
+            onClick={handleToggle}
+            disabled={isToggling}
+          >
+            Toggle
+          </Button>
+          <Button
+            variant="outlined"
+            size="small"
+            startIcon={<Edit />}
+            onClick={() => setIsEditModalOpen(true)}
+          >
+            Edit
+          </Button>
+          <Button
+            variant="outlined"
+            color="error"
+            size="small"
+            startIcon={<Delete />}
+            onClick={() => setIsDeleteModalOpen(true)}
+          >
+            Delete
+          </Button>
+        </CardActions>
+      </Card>
 
       {/* Edit Modal */}
-      <Modal
-        isOpen={isEditModalOpen}
+      <Dialog
+        open={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
-        title="Edit Task"
+        maxWidth="sm"
+        fullWidth
       >
-        <TaskForm
-          task={task}
-          onSuccess={() => setIsEditModalOpen(false)}
-          onCancel={() => setIsEditModalOpen(false)}
-        />
-      </Modal>
+        <DialogTitle>Edit Task</DialogTitle>
+        <DialogContent>
+          <Box sx={{ pt: 1 }}>
+            <TaskForm
+              task={task}
+              onSuccess={() => setIsEditModalOpen(false)}
+              onCancel={() => setIsEditModalOpen(false)}
+            />
+          </Box>
+        </DialogContent>
+      </Dialog>
 
       {/* Delete Confirmation Modal */}
-      <Modal
-        isOpen={isDeleteModalOpen}
+      <Dialog
+        open={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
-        title="Delete Task"
-        size="sm"
+        maxWidth="xs"
+        fullWidth
       >
-        <div className={styles.deleteModal}>
-          <p>Are you sure you want to delete this task?</p>
-          <p className={styles.deleteWarning}>This action cannot be undone.</p>
-
-          <div className={styles.deleteActions}>
-            <Button
-              variant="outline"
-              onClick={() => setIsDeleteModalOpen(false)}
-              disabled={isDeleting}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="danger"
-              onClick={handleDelete}
-              isLoading={isDeleting}
-            >
-              Delete
-            </Button>
-          </div>
-        </div>
-      </Modal>
+        <DialogTitle>Delete Task</DialogTitle>
+        <DialogContent>
+          <Typography>Are you sure you want to delete this task?</Typography>
+          <Typography color="error" sx={{ mt: 1, fontWeight: 500 }}>
+            This action cannot be undone.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => setIsDeleteModalOpen(false)}
+            disabled={isDeleting}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleDelete}
+            color="error"
+            variant="contained"
+            disabled={isDeleting}
+            startIcon={isDeleting && <CircularProgress size={16} />}
+          >
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 }
