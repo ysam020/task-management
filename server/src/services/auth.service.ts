@@ -3,7 +3,6 @@ import { hashPassword, comparePassword } from "../utils/password";
 import {
   generateAccessToken,
   generateRefreshToken,
-  verifyRefreshToken,
   getTokenExpiryDate,
 } from "../utils/jwt";
 import { UnauthorizedError, ConflictError } from "../utils/errors";
@@ -136,11 +135,26 @@ export class AuthService {
     });
   }
 
-  async logoutAll(userId: number): Promise<void> {
-    // Delete all refresh tokens for user
-    await prisma.refreshToken.deleteMany({
-      where: { userId: userId },
+  async getCurrentUser(userId: number): Promise<{
+    id: number;
+    email: string;
+    name: string | null;
+  }> {
+    // Fetch full user details from database
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+      },
     });
+
+    if (!user) {
+      throw new UnauthorizedError("User not found");
+    }
+
+    return user;
   }
 
   private async generateTokensForUser(

@@ -69,10 +69,13 @@ export class AuthController {
 
   async getCurrentUser(req: AuthRequest, res: Response, next: NextFunction) {
     try {
+      const userId = req.user!.userId;
+      const user = await authService.getCurrentUser(userId);
+
       res.status(200).json({
         status: "success",
         data: {
-          user: req.user,
+          user,
         },
       });
     } catch (error) {

@@ -30,7 +30,6 @@ export class TaskController {
     try {
       const userId = req.user!.userId; // number
       const query: TaskQueryInput = req.query as any;
-
       const result = await taskService.getTasks(userId, query);
 
       res.status(200).json({
