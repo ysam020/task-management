@@ -10,7 +10,7 @@ export const registerSchema = z.object({
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
       "Password must contain at least one uppercase letter, one lowercase letter, and one number"
     ),
-  name: z.string().min(2, "Name must be at least 2 characters").optional(),
+  name: z.string().min(2, "Name must be at least 2 characters"),
 });
 
 export const loginSchema = z.object({

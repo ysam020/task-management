@@ -1,9 +1,11 @@
-import { PrismaClient } from "@prisma/client";
 import dotenv from "dotenv";
+import type { SignOptions } from "jsonwebtoken";
+
+// only keep the string variant from expiresIn
+type JwtExpiry = Extract<SignOptions["expiresIn"], string>;
 
 dotenv.config();
 
-// Configuration
 interface Config {
   port: number;
   nodeEnv: string;
@@ -13,8 +15,8 @@ interface Config {
   jwt: {
     accessSecret: string;
     refreshSecret: string;
-    accessExpiry: string;
-    refreshExpiry: string;
+    accessExpiry: JwtExpiry;
+    refreshExpiry: JwtExpiry;
   };
   cors: {
     origin: string;
@@ -30,8 +32,8 @@ const config: Config = {
   jwt: {
     accessSecret: process.env.JWT_ACCESS_SECRET || "",
     refreshSecret: process.env.JWT_REFRESH_SECRET || "",
-    accessExpiry: process.env.JWT_ACCESS_EXPIRY || "15m",
-    refreshExpiry: process.env.JWT_REFRESH_EXPIRY || "7d",
+    accessExpiry: (process.env.JWT_ACCESS_EXPIRY || "15m") as JwtExpiry,
+    refreshExpiry: (process.env.JWT_REFRESH_EXPIRY || "7d") as JwtExpiry,
   },
   cors: {
     origin: process.env.CORS_ORIGIN || "http://localhost:3000",
@@ -59,23 +61,4 @@ const validateConfig = () => {
 
 validateConfig();
 
-// Prisma Client
-const prismaClientSingleton = () => {
-  return new PrismaClient({
-    log:
-      process.env.NODE_ENV === "development"
-        ? ["query", "error", "warn"]
-        : ["error"],
-  });
-};
-
-declare global {
-  var prisma: undefined | ReturnType<typeof prismaClientSingleton>;
-}
-
-const prisma = globalThis.prisma ?? prismaClientSingleton();
-
-if (process.env.NODE_ENV !== "production") globalThis.prisma = prisma;
-
-export default prisma;
-export { config };
+export default config;

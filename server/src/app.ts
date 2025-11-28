@@ -1,7 +1,7 @@
 import express, { Application } from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import config from "./config/database";
+import config from "./config/index";
 import routes from "./routes";
 import {
   errorHandler,

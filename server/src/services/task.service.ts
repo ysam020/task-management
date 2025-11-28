@@ -20,7 +20,7 @@ interface PaginatedTasks {
 }
 
 export class TaskService {
-  async createTask(userId: string, data: CreateTaskInput): Promise<Task> {
+  async createTask(userId: number, data: CreateTaskInput): Promise<Task> {
     const task = await prisma.task.create({
       data: {
         title: data.title,
@@ -34,7 +34,7 @@ export class TaskService {
   }
 
   async getTasks(
-    userId: string,
+    userId: number,
     query: TaskQueryInput
   ): Promise<PaginatedTasks> {
     const { page, limit, status, search, sortBy, sortOrder } = query;
@@ -79,7 +79,7 @@ export class TaskService {
     };
   }
 
-  async getTaskById(userId: string, taskId: string): Promise<Task> {
+  async getTaskById(userId: number, taskId: number): Promise<Task> {
     const task = await prisma.task.findUnique({
       where: { id: taskId },
     });
@@ -96,8 +96,8 @@ export class TaskService {
   }
 
   async updateTask(
-    userId: string,
-    taskId: string,
+    userId: number,
+    taskId: number,
     data: UpdateTaskInput
   ): Promise<Task> {
     // Verify task exists and belongs to user
@@ -117,7 +117,7 @@ export class TaskService {
     return task;
   }
 
-  async deleteTask(userId: string, taskId: string): Promise<void> {
+  async deleteTask(userId: number, taskId: number): Promise<void> {
     // Verify task exists and belongs to user
     await this.getTaskById(userId, taskId);
 
@@ -126,7 +126,7 @@ export class TaskService {
     });
   }
 
-  async toggleTaskStatus(userId: string, taskId: string): Promise<Task> {
+  async toggleTaskStatus(userId: number, taskId: number): Promise<Task> {
     const task = await this.getTaskById(userId, taskId);
 
     // Toggle logic: PENDING -> IN_PROGRESS -> COMPLETED -> PENDING
@@ -153,7 +153,7 @@ export class TaskService {
     return updatedTask;
   }
 
-  async getTaskStats(userId: string): Promise<{
+  async getTaskStats(userId: number): Promise<{
     total: number;
     pending: number;
     inProgress: number;

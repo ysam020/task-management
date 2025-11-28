@@ -1,9 +1,9 @@
 import jwt from "jsonwebtoken";
-import config from "../config/database";
+import config from "../config/index";
 import { UnauthorizedError } from "./errors";
 
 export interface TokenPayload {
-  userId: string;
+  userId: number;
   email: string;
 }
 

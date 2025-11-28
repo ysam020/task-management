@@ -4,14 +4,14 @@ import { UnauthorizedError } from "../utils/errors";
 
 export interface AuthRequest extends Request {
   user?: {
-    userId: string;
+    userId: number;
     email: string;
   };
 }
 
 export const authenticate = async (
   req: AuthRequest,
-  res: Response,
+  _res: Response,
   next: NextFunction
 ) => {
   try {

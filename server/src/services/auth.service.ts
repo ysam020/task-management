@@ -6,12 +6,8 @@ import {
   verifyRefreshToken,
   getTokenExpiryDate,
 } from "../utils/jwt";
-import {
-  UnauthorizedError,
-  ConflictError,
-  NotFoundError,
-} from "../utils/errors";
-import config from "../config/database";
+import { UnauthorizedError, ConflictError } from "../utils/errors";
+import config from "../config/index";
 import { RegisterInput, LoginInput } from "../utils/validations";
 
 interface AuthTokens {
@@ -21,7 +17,7 @@ interface AuthTokens {
 
 interface AuthResponse extends AuthTokens {
   user: {
-    id: string;
+    id: number;
     email: string;
     name: string | null;
   };
@@ -41,7 +37,7 @@ export class AuthService {
     // Hash password
     const hashedPassword = await hashPassword(data.password);
 
-    // Create user
+    // Create user - name is optional in both schema and validation
     const user = await prisma.user.create({
       data: {
         email: data.email,
@@ -60,7 +56,10 @@ export class AuthService {
 
     return {
       ...tokens,
-      user,
+      user: {
+        ...user,
+        id: user.id,
+      },
     };
   }
 
@@ -95,9 +94,6 @@ export class AuthService {
   }
 
   async refresh(refreshToken: string): Promise<AuthTokens> {
-    // Verify refresh token
-    const decoded = verifyRefreshToken(refreshToken);
-
     // Check if refresh token exists in database and is not expired
     const storedToken = await prisma.refreshToken.findUnique({
       where: { token: refreshToken },
@@ -140,15 +136,15 @@ export class AuthService {
     });
   }
 
-  async logoutAll(userId: string): Promise<void> {
+  async logoutAll(userId: number): Promise<void> {
     // Delete all refresh tokens for user
     await prisma.refreshToken.deleteMany({
-      where: { userId },
+      where: { userId: userId },
     });
   }
 
   private async generateTokensForUser(
-    userId: string,
+    userId: number,
     email: string
   ): Promise<AuthTokens> {
     const payload = { userId, email };
@@ -162,7 +158,7 @@ export class AuthService {
     await prisma.refreshToken.create({
       data: {
         token: refreshToken,
-        userId,
+        userId: userId,
         expiresAt,
       },
     });
