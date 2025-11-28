@@ -1,0 +1,260 @@
+/* Stats Grid */
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
+}
+
+.statCard {
+  background-color: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  border-left: 4px solid;
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition-base);
+}
+
+.statCard:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.statCard.blue {
+  border-color: var(--status-pending);
+}
+
+.statCard.yellow {
+  border-color: var(--status-pending);
+}
+
+.statCard.purple {
+  border-color: var(--status-in-progress);
+}
+
+.statCard.green {
+  border-color: var(--status-completed);
+}
+
+.statLabel {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-xs);
+  font-weight: var(--font-medium);
+}
+
+.statValue {
+  font-size: var(--text-3xl);
+  font-weight: var(--font-bold);
+  color: var(--text-primary);
+}
+
+/* Filters */
+.filters {
+  display: flex;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
+  flex-wrap: wrap;
+}
+
+.searchInput {
+  flex: 1;
+  min-width: 250px;
+}
+
+/* Task List */
+.taskListContainer {
+  margin-top: var(--spacing-xl);
+}
+
+.taskList {
+  display: grid;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
+}
+
+.emptyState {
+  text-align: center;
+  padding: var(--spacing-3xl);
+  background-color: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  color: var(--text-secondary);
+}
+
+.emptyState h3 {
+  font-size: var(--text-xl);
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-sm);
+}
+
+/* Task Card */
+.taskCard {
+  background-color: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--transition-base);
+}
+
+.taskCard:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.taskHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+}
+
+.taskTitle {
+  font-size: var(--text-lg);
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
+  margin: 0;
+  flex: 1;
+}
+
+.taskStatus {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-md);
+  font-size: var(--text-xs);
+  font-weight: var(--font-medium);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.taskStatus.yellow {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.taskStatus.purple {
+  background-color: #ede9fe;
+  color: #5b21b6;
+}
+
+.taskStatus.green {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.taskDescription {
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  line-height: 1.6;
+  margin-bottom: var(--spacing-md);
+}
+
+.taskFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-md);
+  padding-top: var(--spacing-md);
+  border-top: 1px solid var(--border);
+}
+
+.taskDate {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+}
+
+.taskActions {
+  display: flex;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg);
+}
+
+.paginationInfo {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+/* Task Form */
+.taskForm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.formActions {
+  display: flex;
+  gap: var(--spacing-sm);
+  justify-content: flex-end;
+  margin-top: var(--spacing-md);
+}
+
+/* Delete Modal */
+.deleteModal {
+  padding: var(--spacing-md) 0;
+}
+
+.deleteModal p {
+  margin-bottom: var(--spacing-md);
+  color: var(--text-secondary);
+}
+
+.deleteWarning {
+  color: var(--danger);
+  font-weight: var(--font-medium);
+  font-size: var(--text-sm);
+}
+
+.deleteActions {
+  display: flex;
+  gap: var(--spacing-sm);
+  justify-content: flex-end;
+  margin-top: var(--spacing-lg);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .statsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .filters {
+    flex-direction: column;
+  }
+
+  .searchInput {
+    width: 100%;
+  }
+
+  .taskHeader {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .taskFooter {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .taskActions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 480px) {
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .statValue {
+    font-size: var(--text-2xl);
+  }
+}
