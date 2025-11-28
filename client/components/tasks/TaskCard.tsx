@@ -3,20 +3,25 @@
 import { useState } from "react";
 import {
   Card,
-  CardContent,
-  CardActions,
   Typography,
-  Button,
   Chip,
   Box,
+  IconButton,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
-  CircularProgress,
+  Button,
+  Tooltip,
+  alpha,
 } from "@mui/material";
-import { Edit, Delete, ToggleOn } from "@mui/icons-material";
-import { Task } from "@/lib/types";
+import {
+  EditOutlined,
+  DeleteOutlineOutlined,
+  CheckCircleOutline,
+  RadioButtonUncheckedOutlined,
+} from "@mui/icons-material";
+import { Task, TaskStatus } from "@/lib/types";
 import { useTasks } from "@/contexts/TaskContext";
 import { TaskForm } from "./TaskForm";
 import { formatDate, getStatusColor, getStatusLabel } from "@/lib/utils/helper";
@@ -37,8 +42,6 @@ export function TaskCard({ task }: TaskCardProps) {
     try {
       await deleteTask(task.id);
       setIsDeleteModalOpen(false);
-    } catch (error) {
-      // Error handled in context
     } finally {
       setIsDeleting(false);
     }
@@ -48,95 +51,157 @@ export function TaskCard({ task }: TaskCardProps) {
     setIsToggling(true);
     try {
       await toggleTaskStatus(task.id);
-    } catch (error) {
-      // Error handled in context
     } finally {
       setIsToggling(false);
     }
   };
 
+  const statusColor = getStatusColor(task.status);
+  const isCompleted = task.status === TaskStatus.COMPLETED;
+
   return (
     <>
       <Card
         sx={{
-          transition: "box-shadow 0.3s",
+          position: "relative",
+          overflow: "visible",
+          transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+          borderLeft: `3px solid ${statusColor}`,
           "&:hover": {
-            boxShadow: 6,
+            boxShadow: (theme) =>
+              `0 4px 20px ${alpha(theme.palette.primary.main, 0.12)}`,
+            transform: "translateY(-2px)",
           },
         }}
       >
-        <CardContent>
+        <Box sx={{ p: 2.5 }}>
+          {/* Header */}
           <Box
             sx={{
               display: "flex",
-              justifyContent: "space-between",
               alignItems: "flex-start",
-              mb: 2,
+              justifyContent: "space-between",
+              mb: 1.5,
             }}
           >
-            <Typography variant="h6" component="h3" sx={{ flex: 1, pr: 2 }}>
-              {task.title}
-            </Typography>
+            <Box sx={{ flex: 1, pr: 2 }}>
+              <Typography
+                variant="h6"
+                sx={{
+                  fontSize: "1.05rem",
+                  fontWeight: 600,
+                  mb: 0.5,
+                  textDecoration: isCompleted ? "line-through" : "none",
+                  color: isCompleted ? "text.secondary" : "text.primary",
+                }}
+              >
+                {task.title}
+              </Typography>
+              <Typography
+                variant="caption"
+                sx={{ color: "text.secondary", display: "block" }}
+              >
+                {formatDate(task.createdAt)}
+              </Typography>
+            </Box>
+
             <Chip
               label={getStatusLabel(task.status)}
-              color={getStatusColor(task.status) as any}
               size="small"
+              sx={{
+                bgcolor: alpha(statusColor, 0.1),
+                color: statusColor,
+                fontWeight: 600,
+                fontSize: "0.75rem",
+                height: 24,
+              }}
             />
           </Box>
 
+          {/* Description */}
           {task.description && (
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            <Typography
+              variant="body2"
+              sx={{
+                color: "text.secondary",
+                mb: 2,
+                lineHeight: 1.6,
+              }}
+            >
               {task.description}
             </Typography>
           )}
 
-          <Typography variant="caption" color="text.secondary">
-            {formatDate(task.createdAt)}
-          </Typography>
-        </CardContent>
+          {/* Actions */}
+          <Box
+            sx={{
+              display: "flex",
+              gap: 0.5,
+              pt: 1,
+              borderTop: "1px solid",
+              borderColor: "divider",
+            }}
+          >
+            <Tooltip title={isCompleted ? "Mark Incomplete" : "Mark Complete"}>
+              <IconButton
+                size="small"
+                onClick={handleToggle}
+                disabled={isToggling}
+                sx={{
+                  color: isCompleted ? "success.main" : "text.secondary",
+                  "&:hover": { bgcolor: alpha(statusColor, 0.08) },
+                }}
+              >
+                {isCompleted ? (
+                  <CheckCircleOutline fontSize="small" />
+                ) : (
+                  <RadioButtonUncheckedOutlined fontSize="small" />
+                )}
+              </IconButton>
+            </Tooltip>
 
-        <CardActions sx={{ justifyContent: "flex-end", px: 2, pb: 2 }}>
-          <Button
-            variant="outlined"
-            size="small"
-            startIcon={
-              isToggling ? <CircularProgress size={16} /> : <ToggleOn />
-            }
-            onClick={handleToggle}
-            disabled={isToggling}
-          >
-            Toggle
-          </Button>
-          <Button
-            variant="outlined"
-            size="small"
-            startIcon={<Edit />}
-            onClick={() => setIsEditModalOpen(true)}
-          >
-            Edit
-          </Button>
-          <Button
-            variant="outlined"
-            color="error"
-            size="small"
-            startIcon={<Delete />}
-            onClick={() => setIsDeleteModalOpen(true)}
-          >
-            Delete
-          </Button>
-        </CardActions>
+            <Tooltip title="Edit Task">
+              <IconButton
+                size="small"
+                onClick={() => setIsEditModalOpen(true)}
+                sx={{
+                  color: "text.secondary",
+                  "&:hover": { bgcolor: "action.hover" },
+                }}
+              >
+                <EditOutlined fontSize="small" />
+              </IconButton>
+            </Tooltip>
+
+            <Tooltip title="Delete Task">
+              <IconButton
+                size="small"
+                onClick={() => setIsDeleteModalOpen(true)}
+                sx={{
+                  color: "text.secondary",
+                  "&:hover": { bgcolor: "error.lighter", color: "error.main" },
+                }}
+              >
+                <DeleteOutlineOutlined fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          </Box>
+        </Box>
       </Card>
 
-      {/* Edit Modal */}
+      {/* Edit Dialog */}
       <Dialog
         open={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
         maxWidth="sm"
         fullWidth
+        PaperProps={{
+          sx: { borderRadius: 2 },
+        }}
       >
-        <DialogTitle>Edit Task</DialogTitle>
+        <DialogTitle sx={{ pb: 1 }}>Edit Task</DialogTitle>
         <DialogContent>
-          <Box sx={{ pt: 1 }}>
+          <Box sx={{ pt: 2 }}>
             <TaskForm
               task={task}
               onSuccess={() => setIsEditModalOpen(false)}
@@ -146,35 +211,40 @@ export function TaskCard({ task }: TaskCardProps) {
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation Modal */}
+      {/* Delete Confirmation Dialog */}
       <Dialog
         open={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         maxWidth="xs"
         fullWidth
+        PaperProps={{
+          sx: { borderRadius: 2 },
+        }}
       >
         <DialogTitle>Delete Task</DialogTitle>
         <DialogContent>
-          <Typography>Are you sure you want to delete this task?</Typography>
-          <Typography color="error" sx={{ mt: 1, fontWeight: 500 }}>
-            This action cannot be undone.
+          <Typography>
+            Are you sure you want to delete <strong>{task.title}</strong>? This
+            action cannot be undone.
           </Typography>
         </DialogContent>
-        <DialogActions>
+        <DialogActions sx={{ px: 3, pb: 2 }}>
           <Button
             onClick={() => setIsDeleteModalOpen(false)}
             disabled={isDeleting}
+            variant="outlined"
+            size="small"
           >
             Cancel
           </Button>
           <Button
             onClick={handleDelete}
+            disabled={isDeleting}
             color="error"
             variant="contained"
-            disabled={isDeleting}
-            startIcon={isDeleting && <CircularProgress size={16} />}
+            size="small"
           >
-            Delete
+            {isDeleting ? "Deleting..." : "Delete"}
           </Button>
         </DialogActions>
       </Dialog>

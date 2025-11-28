@@ -6,8 +6,14 @@ import {
   MenuItem,
   Button,
   Box,
-  CircularProgress,
+  Stack,
+  InputAdornment,
 } from "@mui/material";
+import {
+  TitleOutlined,
+  DescriptionOutlined,
+  FlagOutlined,
+} from "@mui/icons-material";
 import { Task, TaskStatus } from "@/lib/types";
 import { useTasks } from "@/contexts/TaskContext";
 import {
@@ -44,24 +50,32 @@ export function TaskForm({ task, onSuccess, onCancel }: TaskFormProps) {
           }
           onSuccess();
         } catch (error) {
-          // Error handled in context
+          // Error is handled in context
         } finally {
           setSubmitting(false);
         }
       }}
     >
-      {({ isSubmitting, errors, touched, values, handleChange }) => (
+      {({ errors, touched, isSubmitting, values, handleChange }) => (
         <Form>
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+          <Stack spacing={2.5}>
             <Field name="title">
               {({ field }: any) => (
                 <TextField
                   {...field}
-                  label="Title"
-                  placeholder="Enter task title"
                   fullWidth
+                  label="Task Title"
+                  placeholder="Enter task title"
                   error={touched.title && Boolean(errors.title)}
                   helperText={touched.title && errors.title}
+                  disabled={isSubmitting}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <TitleOutlined fontSize="small" color="action" />
+                      </InputAdornment>
+                    ),
+                  }}
                 />
               )}
             </Field>
@@ -70,13 +84,24 @@ export function TaskForm({ task, onSuccess, onCancel }: TaskFormProps) {
               {({ field }: any) => (
                 <TextField
                   {...field}
-                  label="Description"
-                  placeholder="Enter task description (optional)"
                   fullWidth
                   multiline
-                  rows={4}
+                  rows={3}
+                  label="Description"
+                  placeholder="Enter task description (optional)"
                   error={touched.description && Boolean(errors.description)}
                   helperText={touched.description && errors.description}
+                  disabled={isSubmitting}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment
+                        position="start"
+                        sx={{ alignSelf: "flex-start", mt: 1.5 }}
+                      >
+                        <DescriptionOutlined fontSize="small" color="action" />
+                      </InputAdornment>
+                    ),
+                  }}
                 />
               )}
             </Field>
@@ -86,10 +111,18 @@ export function TaskForm({ task, onSuccess, onCancel }: TaskFormProps) {
                 <TextField
                   {...field}
                   select
-                  label="Status"
                   fullWidth
+                  label="Status"
                   error={touched.status && Boolean(errors.status)}
                   helperText={touched.status && errors.status}
+                  disabled={isSubmitting}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <FlagOutlined fontSize="small" color="action" />
+                      </InputAdornment>
+                    ),
+                  }}
                 >
                   <MenuItem value={TaskStatus.PENDING}>Pending</MenuItem>
                   <MenuItem value={TaskStatus.IN_PROGRESS}>
@@ -100,20 +133,38 @@ export function TaskForm({ task, onSuccess, onCancel }: TaskFormProps) {
               )}
             </Field>
 
-            <Box sx={{ display: "flex", gap: 1, justifyContent: "flex-end" }}>
-              <Button onClick={onCancel} disabled={isSubmitting}>
+            <Box
+              sx={{
+                display: "flex",
+                gap: 1.5,
+                justifyContent: "flex-end",
+                pt: 1,
+              }}
+            >
+              <Button
+                onClick={onCancel}
+                disabled={isSubmitting}
+                variant="outlined"
+                size="medium"
+              >
                 Cancel
               </Button>
               <Button
                 type="submit"
-                variant="contained"
                 disabled={isSubmitting}
-                startIcon={isSubmitting && <CircularProgress size={16} />}
+                variant="contained"
+                size="medium"
               >
-                {isEditing ? "Update Task" : "Create Task"}
+                {isSubmitting
+                  ? isEditing
+                    ? "Updating..."
+                    : "Creating..."
+                  : isEditing
+                  ? "Update Task"
+                  : "Create Task"}
               </Button>
             </Box>
-          </Box>
+          </Stack>
         </Form>
       )}
     </Formik>

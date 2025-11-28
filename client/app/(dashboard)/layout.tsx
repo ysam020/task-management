@@ -29,9 +29,10 @@ export default function DashboardLayout({
           justifyContent: "center",
           alignItems: "center",
           minHeight: "100vh",
+          bgcolor: "background.default",
         }}
       >
-        <CircularProgress />
+        <CircularProgress size={48} />
       </Box>
     );
   }
@@ -43,15 +44,19 @@ export default function DashboardLayout({
   return (
     <TaskProvider>
       <Box
-        sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          minHeight: "100vh",
+          bgcolor: "background.default",
+        }}
       >
         <Header />
         <Box
           component="main"
           sx={{
             flexGrow: 1,
-            backgroundColor: "background.default",
-            py: 3,
+            py: { xs: 3, sm: 4 },
           }}
         >
           {children}
