@@ -37,17 +37,10 @@ import { formatDate } from "@/lib/utils/helper";
 
 interface ModernTaskCardProps {
   task: Task;
-  isSelected: boolean;
-  onClick: () => void;
   viewMode: "grid" | "list";
 }
 
-export function TaskCard({
-  task,
-  isSelected,
-  onClick,
-  viewMode,
-}: ModernTaskCardProps) {
+export function TaskCard({ task, viewMode }: ModernTaskCardProps) {
   const { deleteTask, toggleTaskStatus } = useTasks();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -109,28 +102,20 @@ export function TaskCard({
   return (
     <>
       <Card
-        onClick={onClick}
         sx={{
           cursor: "pointer",
           transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
           border: "1px solid",
-          borderColor: isSelected ? "primary.main" : "divider",
+          borderColor: "divider",
           borderLeft: `3px solid ${config.color}`,
-          boxShadow: isSelected ? 2 : 0,
           position: "relative",
           overflow: "visible",
           background: (theme) =>
-            isSelected
-              ? theme.palette.mode === "dark"
-                ? "rgba(102, 126, 234, 0.08)"
-                : "rgba(102, 126, 234, 0.04)"
-              : theme.palette.mode === "dark"
-              ? "rgba(255,255,255,0.02)"
-              : "white",
+            theme.palette.mode === "dark" ? "rgba(255,255,255,0.02)" : "white",
           "&:hover": {
-            transform: isSelected ? "none" : "translateY(-1px)",
-            boxShadow: isSelected ? 2 : 1,
-            borderColor: isSelected ? "primary.main" : "primary.light",
+            transform: "translateY(-1px)",
+            boxShadow: 1,
+            borderColor: "primary.light",
           },
         }}
       >

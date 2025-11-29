@@ -11,20 +11,11 @@ import {
 } from "@mui/material";
 import { ViewModule, ViewList } from "@mui/icons-material";
 import { useTasks } from "@/contexts/TaskContext";
-import { Task } from "@/lib/types";
 import { TaskCard } from "./TaskCard";
 import { TaskPagination } from "./TaskPagination";
 import { useState } from "react";
 
-interface MainContentProps {
-  selectedTask: Task | null;
-  setSelectedTask: (task: Task | null) => void;
-}
-
-export function MainContent({
-  selectedTask,
-  setSelectedTask,
-}: MainContentProps) {
+export function MainContent() {
   const { tasks, isLoading, pagination } = useTasks();
   const [viewMode, setViewMode] = useState<"grid" | "list">("list");
 
@@ -183,13 +174,7 @@ export function MainContent({
             }}
           >
             {tasks.map((task) => (
-              <TaskCard
-                key={task.id}
-                task={task}
-                isSelected={selectedTask?.id === task.id}
-                onClick={() => setSelectedTask(task)}
-                viewMode={viewMode}
-              />
+              <TaskCard key={task.id} task={task} viewMode={viewMode} />
             ))}
           </Box>
         )}
