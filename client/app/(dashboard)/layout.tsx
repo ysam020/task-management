@@ -47,7 +47,8 @@ export default function DashboardLayout({
         sx={{
           display: "flex",
           flexDirection: "column",
-          minHeight: "100vh",
+          height: "100vh",
+          overflow: "hidden",
           bgcolor: "background.default",
         }}
       >
@@ -56,7 +57,9 @@ export default function DashboardLayout({
           component="main"
           sx={{
             flexGrow: 1,
-            py: { xs: 3, sm: 4 },
+            overflow: "hidden",
+            display: "flex",
+            flexDirection: "column",
           }}
         >
           {children}

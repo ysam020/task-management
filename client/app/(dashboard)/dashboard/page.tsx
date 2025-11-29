@@ -28,27 +28,73 @@ export default function DashboardPage() {
           lg: "280px 1fr 320px",
         },
         gap: 3,
-        height: "calc(100vh - 64px)",
+        height: "100%",
         overflow: "hidden",
-        px: 3,
-        py: 3,
+        p: 3,
       }}
     >
       {/* Left Sidebar - Filters & Quick Actions */}
-      <LeftSidebar
-        onCreateTask={() => setIsCreateModalOpen(true)}
-        isCreateModalOpen={isCreateModalOpen}
-        setIsCreateModalOpen={setIsCreateModalOpen}
-      />
+      <Box
+        sx={{
+          height: "100%",
+          overflowY: "auto",
+          backgroundColor: (theme) =>
+            theme.palette.mode === "dark"
+              ? "rgba(0, 0, 0, 0.2)"
+              : "rgba(0, 0, 0, 0.02)",
+          borderRadius: 2,
+          p: 2,
+          "&::-webkit-scrollbar": { width: "6px" },
+          "&::-webkit-scrollbar-thumb": {
+            backgroundColor: "rgba(0,0,0,0.2)",
+            borderRadius: "3px",
+          },
+        }}
+      >
+        <LeftSidebar
+          onCreateTask={() => setIsCreateModalOpen(true)}
+          isCreateModalOpen={isCreateModalOpen}
+          setIsCreateModalOpen={setIsCreateModalOpen}
+        />
+      </Box>
 
       {/* Main Content - Task List */}
-      <MainContent
-        selectedTask={selectedTask}
-        setSelectedTask={setSelectedTask}
-      />
+      <Box
+        sx={{
+          height: "100%",
+          overflowY: "auto",
+          "&::-webkit-scrollbar": { width: "6px" },
+          "&::-webkit-scrollbar-thumb": {
+            backgroundColor: "rgba(0,0,0,0.2)",
+            borderRadius: "3px",
+          },
+        }}
+      >
+        <MainContent
+          selectedTask={selectedTask}
+          setSelectedTask={setSelectedTask}
+        />
+      </Box>
 
       {/* Right Sidebar - Task Details & Activity */}
-      <Box sx={{ display: { xs: "none", lg: "block" } }}>
+      <Box
+        sx={{
+          display: { xs: "none", lg: "block" },
+          height: "100%",
+          overflowY: "auto",
+          backgroundColor: (theme) =>
+            theme.palette.mode === "dark"
+              ? "rgba(0, 0, 0, 0.2)"
+              : "rgba(0, 0, 0, 0.02)",
+          borderRadius: 2,
+          p: 2,
+          "&::-webkit-scrollbar": { width: "6px" },
+          "&::-webkit-scrollbar-thumb": {
+            backgroundColor: "rgba(0,0,0,0.2)",
+            borderRadius: "3px",
+          },
+        }}
+      >
         <RightSidebar selectedTask={selectedTask} />
       </Box>
     </Box>

@@ -86,17 +86,7 @@ export function LeftSidebar({
   ];
 
   return (
-    <Box
-      sx={{
-        height: "100%",
-        overflowY: "auto",
-        "&::-webkit-scrollbar": { width: "6px" },
-        "&::-webkit-scrollbar-thumb": {
-          backgroundColor: "rgba(0,0,0,0.2)",
-          borderRadius: "3px",
-        },
-      }}
-    >
+    <Box>
       {/* Create Button - Compact */}
       <Button
         fullWidth
@@ -213,81 +203,102 @@ export function LeftSidebar({
         <Typography
           variant="caption"
           fontWeight={700}
-          sx={{
-            mb: 1,
-            display: "flex",
-            alignItems: "center",
-            gap: 0.5,
-            textTransform: "uppercase",
-          }}
+          sx={{ mb: 1, textTransform: "uppercase", display: "block" }}
         >
-          <Search sx={{ fontSize: 16 }} />
           Filters
         </Typography>
 
-        {/* Search - Compact */}
-        <TextField
-          fullWidth
-          size="small"
-          placeholder="Search tasks..."
-          value={searchInput}
-          onChange={(e) => setSearchInput(e.target.value)}
-          sx={{
-            mb: 1,
-            "& .MuiInputBase-root": {
-              fontSize: "0.875rem",
-            },
-          }}
-        />
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+          {/* Search */}
+          <TextField
+            size="small"
+            placeholder="Search tasks..."
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            InputProps={{
+              startAdornment: <Search sx={{ fontSize: 18, mr: 0.5 }} />,
+            }}
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                fontSize: "0.8125rem",
+                height: "32px",
+              },
+            }}
+          />
 
-        {/* Status Filter - Compact */}
-        <TextField
-          select
-          fullWidth
-          size="small"
-          label="Status"
-          value={filters.status || "all"}
-          onChange={(e) =>
-            setFilters({
-              ...filters,
-              status:
-                e.target.value === "all"
-                  ? undefined
-                  : (e.target.value as TaskStatus),
-              page: 1,
-            })
-          }
-          sx={{ mb: 1 }}
-        >
-          <MenuItem value="all">All Status</MenuItem>
-          <MenuItem value={TaskStatus.PENDING}>Pending</MenuItem>
-          <MenuItem value={TaskStatus.IN_PROGRESS}>In Progress</MenuItem>
-          <MenuItem value={TaskStatus.COMPLETED}>Completed</MenuItem>
-        </TextField>
+          {/* Status Filter */}
+          <TextField
+            select
+            size="small"
+            label="Status"
+            value={filters.status || "all"}
+            onChange={(e) => {
+              const value = e.target.value;
+              setFilters({
+                ...filters,
+                status: value === "all" ? undefined : (value as TaskStatus),
+                page: 1,
+              });
+            }}
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                fontSize: "0.8125rem",
+              },
+            }}
+          >
+            <MenuItem value="all">All Status</MenuItem>
+            <MenuItem value={TaskStatus.PENDING}>Pending</MenuItem>
+            <MenuItem value={TaskStatus.IN_PROGRESS}>In Progress</MenuItem>
+            <MenuItem value={TaskStatus.COMPLETED}>Completed</MenuItem>
+          </TextField>
 
-        {/* Sort By - Compact */}
-        <TextField
-          select
-          fullWidth
-          size="small"
-          label="Sort By"
-          value={`${filters.sortBy}-${filters.sortOrder}`}
-          onChange={(e) => {
-            const [sortBy, sortOrder] = e.target.value.split("-");
-            setFilters({
-              ...filters,
-              sortBy: sortBy as any,
-              sortOrder: sortOrder as "asc" | "desc",
-              page: 1,
-            });
-          }}
-        >
-          <MenuItem value="createdAt-desc">Newest First</MenuItem>
-          <MenuItem value="createdAt-asc">Oldest First</MenuItem>
-          <MenuItem value="title-asc">Title A-Z</MenuItem>
-          <MenuItem value="title-desc">Title Z-A</MenuItem>
-          <MenuItem value="updatedAt-desc">Recently Updated</MenuItem>
-        </TextField>
+          {/* Sort By */}
+          <TextField
+            select
+            size="small"
+            label="Sort By"
+            value={filters.sortBy || "createdAt"}
+            onChange={(e) =>
+              setFilters({
+                ...filters,
+                sortBy: e.target.value as "createdAt" | "updatedAt" | "title",
+                page: 1,
+              })
+            }
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                fontSize: "0.8125rem",
+              },
+            }}
+          >
+            <MenuItem value="createdAt">Created Date</MenuItem>
+            <MenuItem value="updatedAt">Updated Date</MenuItem>
+            <MenuItem value="title">Title</MenuItem>
+          </TextField>
+
+          {/* Sort Order */}
+          <TextField
+            select
+            size="small"
+            label="Order"
+            value={filters.sortOrder || "desc"}
+            onChange={(e) =>
+              setFilters({
+                ...filters,
+                sortOrder: e.target.value as "asc" | "desc",
+                page: 1,
+              })
+            }
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                fontSize: "0.8125rem",
+              },
+            }}
+          >
+            <MenuItem value="desc">Newest First</MenuItem>
+            <MenuItem value="asc">Oldest First</MenuItem>
+          </TextField>
+        </Box>
 
         {/* Active Filters - Compact */}
         {(filters.status || filters.search) && (
@@ -298,21 +309,21 @@ export function LeftSidebar({
                 <Chip
                   label={filters.status}
                   size="small"
-                  onDelete={() => setFilters({ ...filters, status: undefined })}
-                  sx={{ borderRadius: 1, height: 22, fontSize: "0.75rem" }}
+                  onDelete={() =>
+                    setFilters({ ...filters, status: undefined, page: 1 })
+                  }
+                  sx={{ fontSize: "0.7rem", height: 20 }}
                 />
               )}
               {filters.search && (
                 <Chip
-                  label={`"${filters.search.slice(0, 10)}${
-                    filters.search.length > 10 ? "..." : ""
-                  }"`}
+                  label={`"${filters.search}"`}
                   size="small"
                   onDelete={() => {
                     setSearchInput("");
-                    setFilters({ ...filters, search: undefined });
+                    setFilters({ ...filters, search: "", page: 1 });
                   }}
-                  sx={{ borderRadius: 1, height: 22, fontSize: "0.75rem" }}
+                  sx={{ fontSize: "0.7rem", height: 20 }}
                 />
               )}
             </Box>
@@ -320,23 +331,16 @@ export function LeftSidebar({
         )}
       </Paper>
 
-      {/* Create Task Modal */}
+      {/* Task Form Dialog */}
       <Dialog
         open={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
         maxWidth="sm"
         fullWidth
       >
-        <DialogTitle sx={{ pb: 1, py: 1.5 }}>
-          <Typography variant="h6" fontWeight={700} fontSize="1.125rem">
-            Create New Task
-          </Typography>
-        </DialogTitle>
-        <DialogContent sx={{ pt: 1.5 }}>
-          <TaskForm
-            onSuccess={() => setIsCreateModalOpen(false)}
-            onCancel={() => setIsCreateModalOpen(false)}
-          />
+        <DialogTitle>Create New Task</DialogTitle>
+        <DialogContent>
+          <TaskForm onClose={() => setIsCreateModalOpen(false)} />
         </DialogContent>
       </Dialog>
     </Box>

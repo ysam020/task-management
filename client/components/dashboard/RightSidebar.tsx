@@ -57,17 +57,7 @@ export function RightSidebar({ selectedTask }: RightSidebarProps) {
     .slice(0, 5);
 
   return (
-    <Box
-      sx={{
-        height: "100%",
-        overflowY: "auto",
-        "&::-webkit-scrollbar": { width: "6px" },
-        "&::-webkit-scrollbar-thumb": {
-          backgroundColor: "rgba(0,0,0,0.2)",
-          borderRadius: "3px",
-        },
-      }}
-    >
+    <Box>
       {/* Task Details - Compact */}
       {selectedTask ? (
         <Paper
@@ -258,28 +248,39 @@ export function RightSidebar({ selectedTask }: RightSidebarProps) {
             <Typography
               variant="caption"
               color="text.secondary"
-              textAlign="center"
-              py={1}
+              sx={{ textAlign: "center", py: 2 }}
             >
               No recent activity
             </Typography>
           ) : (
-            recentActivity.map((task, index) => (
+            recentActivity.map((task) => (
               <Box
                 key={task.id}
                 sx={{
                   display: "flex",
+                  alignItems: "flex-start",
                   gap: 1,
-                  pb: index < recentActivity.length - 1 ? 1 : 0,
-                  borderBottom:
-                    index < recentActivity.length - 1 ? "1px solid" : "none",
-                  borderColor: "divider",
+                  p: 1,
+                  borderRadius: 1,
+                  backgroundColor: (theme) =>
+                    theme.palette.mode === "dark"
+                      ? "rgba(255,255,255,0.03)"
+                      : "rgba(0,0,0,0.02)",
+                  transition: "all 0.2s",
+                  cursor: "pointer",
+                  "&:hover": {
+                    backgroundColor: (theme) =>
+                      theme.palette.mode === "dark"
+                        ? "rgba(255,255,255,0.05)"
+                        : "rgba(0,0,0,0.04)",
+                  },
                 }}
               >
                 <Avatar
                   sx={{
-                    width: 28,
-                    height: 28,
+                    width: 24,
+                    height: 24,
+                    fontSize: "0.7rem",
                     bgcolor: statusConfig[task.status].bgColor,
                     color: statusConfig[task.status].color,
                   }}
@@ -291,43 +292,22 @@ export function RightSidebar({ selectedTask }: RightSidebarProps) {
                     variant="caption"
                     fontWeight={600}
                     sx={{
+                      display: "block",
                       overflow: "hidden",
                       textOverflow: "ellipsis",
                       whiteSpace: "nowrap",
-                      mb: 0.25,
-                      display: "block",
                       fontSize: "0.75rem",
                     }}
                   >
                     {task.title}
                   </Typography>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      gap: 0.5,
-                    }}
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ fontSize: "0.7rem" }}
                   >
-                    <Chip
-                      label={statusConfig[task.status].label}
-                      size="small"
-                      sx={{
-                        height: 18,
-                        fontSize: "0.65rem",
-                        backgroundColor: statusConfig[task.status].bgColor,
-                        color: statusConfig[task.status].color,
-                        fontWeight: 600,
-                      }}
-                    />
-                    <Typography
-                      variant="caption"
-                      color="text.secondary"
-                      fontSize="0.65rem"
-                    >
-                      {formatDate(task.updatedAt)}
-                    </Typography>
-                  </Box>
+                    {formatDate(task.updatedAt)}
+                  </Typography>
                 </Box>
               </Box>
             ))
