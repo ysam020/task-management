@@ -6,6 +6,7 @@ import React, {
   useState,
   useEffect,
   useCallback,
+  useRef,
   ReactNode,
 } from "react";
 import { taskApi } from "../lib/api/task.api";
@@ -37,6 +38,25 @@ interface TaskContextType {
 
 const TaskContext = createContext<TaskContextType | undefined>(undefined);
 
+// Helper function to normalize filters by removing undefined values
+const normalizeFilters = (filters: TaskFilters): TaskFilters => {
+  const normalized: any = {};
+  Object.keys(filters).forEach((key) => {
+    const value = (filters as any)[key];
+    if (value !== undefined) {
+      normalized[key] = value;
+    }
+  });
+  return normalized as TaskFilters;
+};
+
+// Helper function to compare filters deeply
+const areFiltersEqual = (a: TaskFilters, b: TaskFilters): boolean => {
+  const normalizedA = normalizeFilters(a);
+  const normalizedB = normalizeFilters(b);
+  return JSON.stringify(normalizedA) === JSON.stringify(normalizedB);
+};
+
 export const TaskProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
@@ -46,18 +66,44 @@ export const TaskProvider: React.FC<{ children: ReactNode }> = ({
   >(null);
   const [stats, setStats] = useState<TaskStats | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [filters, setFilters] = useState<TaskFilters>({
+  const [filters, setFiltersState] = useState<TaskFilters>({
     page: 1,
     limit: 10,
     sortBy: "createdAt",
     sortOrder: "desc",
   });
 
-  // Stable fetchTasks - no dependencies needed
+  // Track the last filters used for fetching to prevent duplicate calls
+  const lastFetchedFiltersRef = useRef<TaskFilters | null>(null);
+  const isFetchingRef = useRef(false);
+
+  // Wrapper for setFilters that normalizes the input
+  const setFilters = useCallback((newFilters: TaskFilters) => {
+    setFiltersState(normalizeFilters(newFilters));
+  }, []);
+
   const fetchTasks = useCallback(async (newFilters?: TaskFilters) => {
+    const appliedFilters = normalizeFilters(newFilters || filters);
+
+    // Check if we've already fetched with these exact filters
+    if (
+      lastFetchedFiltersRef.current &&
+      areFiltersEqual(appliedFilters, lastFetchedFiltersRef.current) &&
+      isFetchingRef.current
+    ) {
+      return;
+    }
+
+    // Prevent duplicate simultaneous fetches
+    if (isFetchingRef.current) {
+      return;
+    }
+
     try {
+      isFetchingRef.current = true;
+      lastFetchedFiltersRef.current = appliedFilters;
       setIsLoading(true);
-      const appliedFilters = newFilters || filters;
+
       const response = await taskApi.getTasks(appliedFilters);
       setTasks(response.tasks);
       setPagination(response.pagination);
@@ -67,8 +113,10 @@ export const TaskProvider: React.FC<{ children: ReactNode }> = ({
       toast.error(errorMessage);
     } finally {
       setIsLoading(false);
+      isFetchingRef.current = false;
     }
-  }, []); // Remove filters dependency
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const fetchTaskStats = useCallback(async () => {
     try {
@@ -81,8 +129,17 @@ export const TaskProvider: React.FC<{ children: ReactNode }> = ({
 
   // Auto-fetch when filters change
   useEffect(() => {
-    fetchTasks(filters);
-  }, [filters, fetchTasks]);
+    const normalizedFilters = normalizeFilters(filters);
+
+    // Only fetch if filters actually changed
+    if (
+      !lastFetchedFiltersRef.current ||
+      !areFiltersEqual(normalizedFilters, lastFetchedFiltersRef.current)
+    ) {
+      fetchTasks(normalizedFilters);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters]);
 
   const createTask = async (data: CreateTaskData) => {
     try {

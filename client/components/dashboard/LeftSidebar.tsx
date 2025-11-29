@@ -51,7 +51,17 @@ export function LeftSidebar({
 
     searchTimeoutRef.current = setTimeout(() => {
       if (searchInput !== filters.search) {
-        setFilters({ ...filters, search: searchInput || undefined, page: 1 });
+        // FIX: Only add search property if it has a value, otherwise delete it
+        const newFilters = { ...filters, page: 1 };
+
+        if (searchInput && searchInput.trim()) {
+          newFilters.search = searchInput;
+        } else {
+          // Remove search property entirely if empty
+          delete newFilters.search;
+        }
+
+        setFilters(newFilters);
       }
     }, 500);
 
@@ -60,7 +70,7 @@ export function LeftSidebar({
         clearTimeout(searchTimeoutRef.current);
       }
     };
-  }, [searchInput]);
+  }, [searchInput, filters, setFilters]);
 
   const statItems = [
     {
@@ -199,16 +209,18 @@ export function LeftSidebar({
           size="small"
           label="Status"
           value={filters.status || "all"}
-          onChange={(e) =>
-            setFilters({
-              ...filters,
-              status:
-                e.target.value === "all"
-                  ? undefined
-                  : (e.target.value as TaskStatus),
-              page: 1,
-            })
-          }
+          onChange={(e) => {
+            // FIX: Clean up undefined values when setting filters
+            const newFilters = { ...filters, page: 1 };
+
+            if (e.target.value === "all") {
+              delete newFilters.status;
+            } else {
+              newFilters.status = e.target.value as TaskStatus;
+            }
+
+            setFilters(newFilters);
+          }}
           sx={{
             mb: 2,
             "& .MuiInputBase-root": {
@@ -262,9 +274,12 @@ export function LeftSidebar({
                 <Chip
                   label={filters.status}
                   size="small"
-                  onDelete={() =>
-                    setFilters({ ...filters, status: undefined, page: 1 })
-                  }
+                  onDelete={() => {
+                    // FIX: Delete property instead of setting to undefined
+                    const newFilters = { ...filters, page: 1 };
+                    delete newFilters.status;
+                    setFilters(newFilters);
+                  }}
                   sx={{
                     borderRadius: 1.5,
                     height: 24,
@@ -290,7 +305,10 @@ export function LeftSidebar({
                   size="small"
                   onDelete={() => {
                     setSearchInput("");
-                    setFilters({ ...filters, search: undefined, page: 1 });
+                    // FIX: Delete property instead of setting to undefined
+                    const newFilters = { ...filters, page: 1 };
+                    delete newFilters.search;
+                    setFilters(newFilters);
                   }}
                   sx={{
                     borderRadius: 1.5,
@@ -364,27 +382,20 @@ export function LeftSidebar({
                 },
               }}
               onClick={() => {
+                // FIX: Clean up undefined values when setting filters
+                const newFilters = { ...filters, page: 1 };
+
                 if (stat.label === "Pending") {
-                  setFilters({
-                    ...filters,
-                    status: TaskStatus.PENDING,
-                    page: 1,
-                  });
+                  newFilters.status = TaskStatus.PENDING;
                 } else if (stat.label === "In Progress") {
-                  setFilters({
-                    ...filters,
-                    status: TaskStatus.IN_PROGRESS,
-                    page: 1,
-                  });
+                  newFilters.status = TaskStatus.IN_PROGRESS;
                 } else if (stat.label === "Completed") {
-                  setFilters({
-                    ...filters,
-                    status: TaskStatus.COMPLETED,
-                    page: 1,
-                  });
+                  newFilters.status = TaskStatus.COMPLETED;
                 } else {
-                  setFilters({ ...filters, status: undefined, page: 1 });
+                  delete newFilters.status;
                 }
+
+                setFilters(newFilters);
               }}
             >
               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
