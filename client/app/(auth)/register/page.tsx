@@ -77,16 +77,6 @@ export default function RegisterPage() {
                     error={touched.name && Boolean(errors.name)}
                     helperText={touched.name && errors.name}
                     disabled={isSubmitting}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <PersonOutlineOutlined
-                            fontSize="small"
-                            color="action"
-                          />
-                        </InputAdornment>
-                      ),
-                    }}
                   />
                 )}
               </Field>
@@ -102,13 +92,6 @@ export default function RegisterPage() {
                     error={touched.email && Boolean(errors.email)}
                     helperText={touched.email && errors.email}
                     disabled={isSubmitting}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <EmailOutlined fontSize="small" color="action" />
-                        </InputAdornment>
-                      ),
-                    }}
                   />
                 )}
               </Field>
@@ -124,13 +107,6 @@ export default function RegisterPage() {
                     error={touched.password && Boolean(errors.password)}
                     helperText={touched.password && errors.password}
                     disabled={isSubmitting}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <LockOutlined fontSize="small" color="action" />
-                        </InputAdornment>
-                      ),
-                    }}
                   />
                 )}
               </Field>

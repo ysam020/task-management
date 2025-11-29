@@ -69,13 +69,6 @@ export function TaskForm({ task, onSuccess, onCancel }: TaskFormProps) {
                   error={touched.title && Boolean(errors.title)}
                   helperText={touched.title && errors.title}
                   disabled={isSubmitting}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <TitleOutlined fontSize="small" color="action" />
-                      </InputAdornment>
-                    ),
-                  }}
                 />
               )}
             </Field>
@@ -92,16 +85,6 @@ export function TaskForm({ task, onSuccess, onCancel }: TaskFormProps) {
                   error={touched.description && Boolean(errors.description)}
                   helperText={touched.description && errors.description}
                   disabled={isSubmitting}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment
-                        position="start"
-                        sx={{ alignSelf: "flex-start", mt: 1.5 }}
-                      >
-                        <DescriptionOutlined fontSize="small" color="action" />
-                      </InputAdornment>
-                    ),
-                  }}
                 />
               )}
             </Field>
@@ -116,13 +99,6 @@ export function TaskForm({ task, onSuccess, onCancel }: TaskFormProps) {
                   error={touched.status && Boolean(errors.status)}
                   helperText={touched.status && errors.status}
                   disabled={isSubmitting}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <FlagOutlined fontSize="small" color="action" />
-                      </InputAdornment>
-                    ),
-                  }}
                 >
                   <MenuItem value={TaskStatus.PENDING}>Pending</MenuItem>
                   <MenuItem value={TaskStatus.IN_PROGRESS}>
