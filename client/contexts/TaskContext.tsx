@@ -1,6 +1,13 @@
 "use client";
 
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+  ReactNode,
+} from "react";
 import { taskApi } from "../lib/api/task.api";
 import {
   Task,
@@ -45,30 +52,46 @@ export const TaskProvider: React.FC<{ children: ReactNode }> = ({
     sortOrder: "desc",
   });
 
-  const fetchTasks = async (newFilters?: TaskFilters) => {
-    try {
-      setIsLoading(true);
-      const appliedFilters = newFilters || filters;
-      const response = await taskApi.getTasks(appliedFilters);
-      setTasks(response.tasks);
-      setPagination(response.pagination);
-    } catch (error: any) {
-      const errorMessage =
-        error.response?.data?.message || "Failed to fetch tasks";
-      toast.error(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const fetchTasks = useCallback(
+    async (newFilters?: TaskFilters) => {
+      try {
+        setIsLoading(true);
+        const appliedFilters = newFilters || filters;
+        const response = await taskApi.getTasks(appliedFilters);
+        setTasks(response.tasks);
+        setPagination(response.pagination);
+      } catch (error: any) {
+        const errorMessage =
+          error.response?.data?.message || "Failed to fetch tasks";
+        toast.error(errorMessage);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [filters]
+  );
 
-  const fetchTaskStats = async () => {
+  const fetchTaskStats = useCallback(async () => {
     try {
       const statsData = await taskApi.getTaskStats();
       setStats(statsData);
     } catch (error: any) {
       console.error("Failed to fetch task stats:", error);
     }
-  };
+  }, []);
+
+  // 🔹 FIX: Automatically fetch tasks and stats when filters change
+  useEffect(() => {
+    fetchTasks();
+    fetchTaskStats();
+  }, [
+    filters.page,
+    filters.limit,
+    filters.status,
+    filters.search,
+    filters.sortBy,
+    filters.sortOrder,
+  ]);
 
   const createTask = async (data: CreateTaskData) => {
     try {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Box } from "@mui/material";
 import { useTasks } from "@/contexts/TaskContext";
 import { LeftSidebar } from "@/components/dashboard/LeftSidebar";
@@ -9,14 +9,10 @@ import { RightSidebar } from "@/components/dashboard/RightSidebar";
 import { Task } from "@/lib/types";
 
 export default function DashboardPage() {
-  const { fetchTasks, fetchTaskStats } = useTasks();
+  // 🔹 REMOVED: fetchTasks and fetchTaskStats from here
+  // The TaskContext now handles fetching automatically via useEffect
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-
-  useEffect(() => {
-    fetchTasks();
-    fetchTaskStats();
-  }, []);
 
   return (
     <Box
@@ -28,73 +24,27 @@ export default function DashboardPage() {
           lg: "280px 1fr 320px",
         },
         gap: 3,
-        height: "100%",
+        height: "calc(100vh - 64px)",
         overflow: "hidden",
-        p: 3,
+        px: 3,
+        py: 3,
       }}
     >
       {/* Left Sidebar - Filters & Quick Actions */}
-      <Box
-        sx={{
-          height: "100%",
-          overflowY: "auto",
-          backgroundColor: (theme) =>
-            theme.palette.mode === "dark"
-              ? "rgba(0, 0, 0, 0.2)"
-              : "rgba(0, 0, 0, 0.02)",
-          borderRadius: 2,
-          p: 2,
-          "&::-webkit-scrollbar": { width: "6px" },
-          "&::-webkit-scrollbar-thumb": {
-            backgroundColor: "rgba(0,0,0,0.2)",
-            borderRadius: "3px",
-          },
-        }}
-      >
-        <LeftSidebar
-          onCreateTask={() => setIsCreateModalOpen(true)}
-          isCreateModalOpen={isCreateModalOpen}
-          setIsCreateModalOpen={setIsCreateModalOpen}
-        />
-      </Box>
+      <LeftSidebar
+        onCreateTask={() => setIsCreateModalOpen(true)}
+        isCreateModalOpen={isCreateModalOpen}
+        setIsCreateModalOpen={setIsCreateModalOpen}
+      />
 
       {/* Main Content - Task List */}
-      <Box
-        sx={{
-          height: "100%",
-          overflowY: "auto",
-          "&::-webkit-scrollbar": { width: "6px" },
-          "&::-webkit-scrollbar-thumb": {
-            backgroundColor: "rgba(0,0,0,0.2)",
-            borderRadius: "3px",
-          },
-        }}
-      >
-        <MainContent
-          selectedTask={selectedTask}
-          setSelectedTask={setSelectedTask}
-        />
-      </Box>
+      <MainContent
+        selectedTask={selectedTask}
+        setSelectedTask={setSelectedTask}
+      />
 
       {/* Right Sidebar - Task Details & Activity */}
-      <Box
-        sx={{
-          display: { xs: "none", lg: "block" },
-          height: "100%",
-          overflowY: "auto",
-          backgroundColor: (theme) =>
-            theme.palette.mode === "dark"
-              ? "rgba(0, 0, 0, 0.2)"
-              : "rgba(0, 0, 0, 0.02)",
-          borderRadius: 2,
-          p: 2,
-          "&::-webkit-scrollbar": { width: "6px" },
-          "&::-webkit-scrollbar-thumb": {
-            backgroundColor: "rgba(0,0,0,0.2)",
-            borderRadius: "3px",
-          },
-        }}
-      >
+      <Box sx={{ display: { xs: "none", lg: "block" } }}>
         <RightSidebar selectedTask={selectedTask} />
       </Box>
     </Box>
