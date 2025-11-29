@@ -11,9 +11,7 @@ export class TaskController {
   async createTask(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const userId = req.user!.userId;
-      console.log(typeof userId);
       const data: CreateTaskInput = req.body;
-
       const task = await taskService.createTask(userId, data);
 
       res.status(201).json({
@@ -28,7 +26,7 @@ export class TaskController {
 
   async getTasks(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const userId = req.user!.userId; // number
+      const userId = req.user!.userId;
       const query: TaskQueryInput = req.query as any;
       const result = await taskService.getTasks(userId, query);
 
@@ -41,16 +39,21 @@ export class TaskController {
     }
   }
 
-  async getTaskById(req: AuthRequest, res: Response, next: NextFunction) {
+  async getTaskById(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const userId = req.user!.userId;
-      const taskId = parseInt(req.params.id, 10); // 🔹 string -> number
+      const taskId = parseInt(req.params.id, 10);
 
       if (Number.isNaN(taskId)) {
-        return res.status(400).json({
+        res.status(400).json({
           status: "fail",
           message: "Invalid task id",
         });
+        return;
       }
 
       const task = await taskService.getTaskById(userId, taskId);
@@ -64,16 +67,21 @@ export class TaskController {
     }
   }
 
-  async updateTask(req: AuthRequest, res: Response, next: NextFunction) {
+  async updateTask(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const userId = req.user!.userId;
       const taskId = parseInt(req.params.id, 10); // 🔹
 
       if (Number.isNaN(taskId)) {
-        return res.status(400).json({
+        res.status(400).json({
           status: "fail",
           message: "Invalid task id",
         });
+        return;
       }
 
       const data: UpdateTaskInput = req.body;
@@ -90,16 +98,21 @@ export class TaskController {
     }
   }
 
-  async deleteTask(req: AuthRequest, res: Response, next: NextFunction) {
+  async deleteTask(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const userId = req.user!.userId;
       const taskId = parseInt(req.params.id, 10); // 🔹
 
       if (Number.isNaN(taskId)) {
-        return res.status(400).json({
+        res.status(400).json({
           status: "fail",
           message: "Invalid task id",
         });
+        return;
       }
 
       await taskService.deleteTask(userId, taskId);
@@ -113,16 +126,21 @@ export class TaskController {
     }
   }
 
-  async toggleTaskStatus(req: AuthRequest, res: Response, next: NextFunction) {
+  async toggleTaskStatus(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const userId = req.user!.userId;
       const taskId = parseInt(req.params.id, 10); // 🔹
 
       if (Number.isNaN(taskId)) {
-        return res.status(400).json({
+        res.status(400).json({
           status: "fail",
           message: "Invalid task id",
         });
+        return;
       }
 
       const task = await taskService.toggleTaskStatus(userId, taskId);

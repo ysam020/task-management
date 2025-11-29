@@ -1,4 +1,3 @@
-import prisma from "../config/database";
 import { hashPassword, comparePassword } from "../utils/password";
 import {
   generateAccessToken,
@@ -6,7 +5,7 @@ import {
   getTokenExpiryDate,
 } from "../utils/jwt";
 import { UnauthorizedError, ConflictError } from "../utils/errors";
-import config from "../config/index";
+import { config, prisma } from "../config/index";
 import { RegisterInput, LoginInput } from "../utils/validations";
 
 interface AuthTokens {
@@ -36,7 +35,7 @@ export class AuthService {
     // Hash password
     const hashedPassword = await hashPassword(data.password);
 
-    // Create user - name is optional in both schema and validation
+    // Create user
     const user = await prisma.user.create({
       data: {
         email: data.email,
@@ -140,7 +139,6 @@ export class AuthService {
     email: string;
     name: string | null;
   }> {
-    // Fetch full user details from database
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: {
@@ -165,10 +163,9 @@ export class AuthService {
 
     const accessToken = generateAccessToken(payload);
     const refreshToken = generateRefreshToken(payload);
-
-    // Store refresh token in database
     const expiresAt = getTokenExpiryDate(config.jwt.refreshExpiry);
 
+    // Store refresh token in database
     await prisma.refreshToken.create({
       data: {
         token: refreshToken,

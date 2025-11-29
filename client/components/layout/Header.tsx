@@ -13,11 +13,7 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import {
-  LogoutOutlined,
-  ChecklistRtlOutlined,
-  PersonOutlineOutlined,
-} from "@mui/icons-material";
+import { LogoutOutlined, ChecklistRtlOutlined } from "@mui/icons-material";
 import { useAuth } from "@/contexts/AuthContext";
 
 export function Header() {

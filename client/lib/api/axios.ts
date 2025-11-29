@@ -15,7 +15,7 @@ const axiosInstance = axios.create({
   },
 });
 
-// Request interceptor - Add access token to requests
+// Request interceptor
 axiosInstance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const token = tokenStorage.getAccessToken();

@@ -20,7 +20,6 @@ const VIEW_MODE_STORAGE_KEY = "taskViewMode";
 export function MainContent() {
   const { tasks, isLoading, pagination } = useTasks();
   const [viewMode, setViewMode] = useState<"grid" | "list">(() => {
-    // Initialize from localStorage if available
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem(VIEW_MODE_STORAGE_KEY);
       return saved === "grid" || saved === "list" ? saved : "grid";
@@ -28,7 +27,6 @@ export function MainContent() {
     return "grid";
   });
 
-  // Save to localStorage whenever viewMode changes
   useEffect(() => {
     if (typeof window !== "undefined") {
       localStorage.setItem(VIEW_MODE_STORAGE_KEY, viewMode);
@@ -43,6 +41,7 @@ export function MainContent() {
           justifyContent: "center",
           alignItems: "center",
           height: "100%",
+          minHeight: { xs: "50vh", md: "auto" },
         }}
       >
         <CircularProgress size={40} />
@@ -53,29 +52,35 @@ export function MainContent() {
   return (
     <Box
       sx={{
-        height: "100%",
+        height: { xs: "auto", md: "100%" },
+        minHeight: { xs: "calc(100vh - 200px)", md: "auto" },
         display: "flex",
         flexDirection: "column",
-        overflow: "hidden",
+        overflow: { xs: "visible", md: "hidden" },
       }}
     >
-      {/* Header - Compact */}
+      {/* Header */}
       <Box
         sx={{
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          mb: 1.5,
-          pb: 1.5,
+          mb: { xs: 2, md: 1.5 },
+          pb: { xs: 2, md: 1.5 },
           borderBottom: "2px solid",
           borderColor: "divider",
+          flexShrink: 0,
         }}
       >
         <Box>
           <Typography
             variant="h5"
             fontWeight={800}
-            sx={{ mb: 0.25, lineHeight: 1.2 }}
+            sx={{
+              mb: 0.25,
+              lineHeight: 1.2,
+              fontSize: { xs: "1.25rem", md: "1.5rem" },
+            }}
           >
             My Tasks
           </Typography>
@@ -126,12 +131,13 @@ export function MainContent() {
         </Box>
       </Box>
 
-      {/* Task List - Compact */}
+      {/* Task List */}
       <Box
         sx={{
           flexGrow: 1,
-          overflowY: "auto",
-          pr: 1,
+          overflowY: { xs: "visible", md: "auto" },
+          pr: { xs: 0, md: 1 },
+          pb: { xs: 2, md: 0 },
           "&::-webkit-scrollbar": { width: "8px" },
           "&::-webkit-scrollbar-thumb": {
             backgroundColor: "rgba(0,0,0,0.2)",
@@ -144,7 +150,7 @@ export function MainContent() {
             elevation={0}
             sx={{
               textAlign: "center",
-              py: 8,
+              py: { xs: 6, md: 8 },
               border: "2px dashed",
               borderColor: "divider",
               borderRadius: 2,
@@ -180,9 +186,13 @@ export function MainContent() {
               flexDirection: viewMode === "list" ? "column" : undefined,
               gridTemplateColumns:
                 viewMode === "grid"
-                  ? { sm: "repeat(2, 1fr)", lg: "repeat(2, 1fr)" }
+                  ? {
+                      xs: "1fr",
+                      sm: "repeat(2, 1fr)",
+                      lg: "repeat(2, 1fr)",
+                    }
                   : undefined,
-              gap: 1.5,
+              gap: { xs: 2, md: 1.5 },
             }}
           >
             {tasks.map((task) => (
@@ -192,14 +202,15 @@ export function MainContent() {
         )}
       </Box>
 
-      {/* Pagination - Compact */}
+      {/* Pagination */}
       {pagination && pagination.totalPages > 1 && (
         <Box
           sx={{
-            mt: 1.5,
-            pt: 1.5,
+            pt: { xs: 2, md: 1.5 },
+            pb: { xs: 15, md: 0 },
             borderTop: "1px solid",
             borderColor: "divider",
+            flexShrink: 0,
           }}
         >
           <TaskPagination />

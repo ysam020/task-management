@@ -7,7 +7,6 @@ import {
   Typography,
   TextField,
   MenuItem,
-  Divider,
   Chip,
   Dialog,
   DialogTitle,
@@ -16,7 +15,6 @@ import {
 } from "@mui/material";
 import {
   Add,
-  Search,
   FilterList,
   CheckCircle,
   RadioButtonUnchecked,
@@ -26,7 +24,7 @@ import {
 import { useTasks } from "@/contexts/TaskContext";
 import { TaskStatus } from "@/lib/types";
 import { TaskForm } from "@/components/tasks/TaskForm";
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 
 interface LeftSidebarProps {
   onCreateTask: () => void;
@@ -51,13 +49,11 @@ export function LeftSidebar({
 
     searchTimeoutRef.current = setTimeout(() => {
       if (searchInput !== filters.search) {
-        // FIX: Only add search property if it has a value, otherwise delete it
         const newFilters = { ...filters, page: 1 };
 
         if (searchInput && searchInput.trim()) {
           newFilters.search = searchInput;
         } else {
-          // Remove search property entirely if empty
           delete newFilters.search;
         }
 
@@ -152,9 +148,9 @@ export function LeftSidebar({
       <Paper
         elevation={0}
         sx={{
-          p: 1,
+          p: { xs: 2, md: 1 },
           border: "1px solid",
-          borderColor: alpha("#667eea", 0.1),
+          borderColor: "divider",
           borderRadius: 2,
           background: "linear-gradient(135deg, #ffffff 0%, #f9fafb 100%)",
           boxShadow: "0 2px 8px rgba(102, 126, 234, 0.08)",
@@ -174,7 +170,7 @@ export function LeftSidebar({
             letterSpacing: "0.5px",
           }}
         >
-          <Search sx={{ fontSize: 16 }} />
+          <FilterList sx={{ fontSize: 16 }} />
           Filters
         </Typography>
 
@@ -186,17 +182,19 @@ export function LeftSidebar({
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
           sx={{
-            mb: 2,
-            "& .MuiInputBase-root": {
-              fontSize: "0.875rem",
+            mb: 1.5,
+            "& .MuiOutlinedInput-root": {
+              fontSize: "0.813rem",
               borderRadius: 1.5,
               backgroundColor: "#ffffff",
-              "&:hover": {
-                backgroundColor: "#fafbff",
+              "& fieldset": {
+                borderColor: alpha("#667eea", 0.2),
               },
-              "&.Mui-focused": {
-                backgroundColor: "#ffffff",
-                boxShadow: "0 0 0 3px rgba(102, 126, 234, 0.1)",
+              "&:hover fieldset": {
+                borderColor: alpha("#667eea", 0.4),
+              },
+              "&.Mui-focused fieldset": {
+                borderColor: "#667eea",
               },
             },
           }}
@@ -204,139 +202,147 @@ export function LeftSidebar({
 
         {/* Status Filter */}
         <TextField
-          select
           fullWidth
+          select
           size="small"
           label="Status"
           value={filters.status || "all"}
-          onChange={(e) => {
-            // FIX: Clean up undefined values when setting filters
-            const newFilters = { ...filters, page: 1 };
-
-            if (e.target.value === "all") {
-              delete newFilters.status;
-            } else {
-              newFilters.status = e.target.value as TaskStatus;
-            }
-
-            setFilters(newFilters);
-          }}
+          onChange={(e) =>
+            setFilters({
+              ...filters,
+              status:
+                e.target.value === "all"
+                  ? undefined
+                  : (e.target.value as TaskStatus),
+              page: 1,
+            })
+          }
           sx={{
-            mb: 2,
-            "& .MuiInputBase-root": {
+            mb: 1.5,
+            "& .MuiOutlinedInput-root": {
+              fontSize: "0.813rem",
               borderRadius: 1.5,
               backgroundColor: "#ffffff",
+              "& fieldset": {
+                borderColor: alpha("#667eea", 0.2),
+              },
+              "&:hover fieldset": {
+                borderColor: alpha("#667eea", 0.4),
+              },
+              "&.Mui-focused fieldset": {
+                borderColor: "#667eea",
+              },
+            },
+            "& .MuiInputLabel-root": {
+              fontSize: "0.813rem",
+              "&.Mui-focused": {
+                color: "#667eea",
+              },
             },
           }}
         >
-          <MenuItem value="all">All Status</MenuItem>
+          <MenuItem value="all">All Tasks</MenuItem>
           <MenuItem value={TaskStatus.PENDING}>Pending</MenuItem>
           <MenuItem value={TaskStatus.IN_PROGRESS}>In Progress</MenuItem>
           <MenuItem value={TaskStatus.COMPLETED}>Completed</MenuItem>
         </TextField>
 
-        {/* Sort By */}
-        <TextField
-          select
-          fullWidth
-          size="small"
-          label="Sort By"
-          value={`${filters.sortBy}-${filters.sortOrder}`}
-          onChange={(e) => {
-            const [sortBy, sortOrder] = e.target.value.split("-");
-            setFilters({
-              ...filters,
-              sortBy: sortBy as any,
-              sortOrder: sortOrder as "asc" | "desc",
-              page: 1,
-            });
-          }}
-          sx={{
-            "& .MuiInputBase-root": {
-              borderRadius: 1.5,
-              backgroundColor: "#ffffff",
-            },
-          }}
-        >
-          <MenuItem value="createdAt-desc">Newest First</MenuItem>
-          <MenuItem value="createdAt-asc">Oldest First</MenuItem>
-          <MenuItem value="title-asc">Title A-Z</MenuItem>
-          <MenuItem value="title-desc">Title Z-A</MenuItem>
-          <MenuItem value="updatedAt-desc">Recently Updated</MenuItem>
-        </TextField>
+        {/* Sort Options */}
+        <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 1 }}>
+          <TextField
+            select
+            size="small"
+            label="Sort By"
+            value={filters.sortBy || "createdAt"}
+            onChange={(e) =>
+              setFilters({
+                ...filters,
+                sortBy: e.target.value as "createdAt" | "updatedAt" | "title",
+              })
+            }
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                fontSize: "0.75rem",
+                borderRadius: 1.5,
+                backgroundColor: "#ffffff",
+                "& fieldset": {
+                  borderColor: alpha("#667eea", 0.2),
+                },
+                "&:hover fieldset": {
+                  borderColor: alpha("#667eea", 0.4),
+                },
+                "&.Mui-focused fieldset": {
+                  borderColor: "#667eea",
+                },
+              },
+              "& .MuiInputLabel-root": {
+                fontSize: "0.75rem",
+                "&.Mui-focused": {
+                  color: "#667eea",
+                },
+              },
+            }}
+          >
+            <MenuItem value="createdAt" sx={{ fontSize: "0.75rem" }}>
+              Created
+            </MenuItem>
+            <MenuItem value="updatedAt" sx={{ fontSize: "0.75rem" }}>
+              Updated
+            </MenuItem>
+            <MenuItem value="title" sx={{ fontSize: "0.75rem" }}>
+              Title
+            </MenuItem>
+          </TextField>
 
-        {/* Active Filters */}
-        {(filters.status || filters.search) && (
-          <>
-            <Divider sx={{ my: 1.5 }} />
-            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-              {filters.status && (
-                <Chip
-                  label={filters.status}
-                  size="small"
-                  onDelete={() => {
-                    // FIX: Delete property instead of setting to undefined
-                    const newFilters = { ...filters, page: 1 };
-                    delete newFilters.status;
-                    setFilters(newFilters);
-                  }}
-                  sx={{
-                    borderRadius: 1.5,
-                    height: 24,
-                    fontSize: "0.75rem",
-                    background:
-                      "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                    color: "#ffffff",
-                    fontWeight: 600,
-                    "& .MuiChip-deleteIcon": {
-                      color: "rgba(255, 255, 255, 0.8)",
-                      "&:hover": {
-                        color: "#ffffff",
-                      },
-                    },
-                  }}
-                />
-              )}
-              {filters.search && (
-                <Chip
-                  label={`"${filters.search.slice(0, 10)}${
-                    filters.search.length > 10 ? "..." : ""
-                  }"`}
-                  size="small"
-                  onDelete={() => {
-                    setSearchInput("");
-                    // FIX: Delete property instead of setting to undefined
-                    const newFilters = { ...filters, page: 1 };
-                    delete newFilters.search;
-                    setFilters(newFilters);
-                  }}
-                  sx={{
-                    borderRadius: 1.5,
-                    height: 24,
-                    fontSize: "0.75rem",
-                    background:
-                      "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                    color: "#ffffff",
-                    fontWeight: 600,
-                    "& .MuiChip-deleteIcon": {
-                      color: "rgba(255, 255, 255, 0.8)",
-                      "&:hover": {
-                        color: "#ffffff",
-                      },
-                    },
-                  }}
-                />
-              )}
-            </Box>
-          </>
-        )}
+          <TextField
+            select
+            size="small"
+            label="Order"
+            value={filters.sortOrder || "desc"}
+            onChange={(e) =>
+              setFilters({
+                ...filters,
+                sortOrder: e.target.value as "asc" | "desc",
+              })
+            }
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                fontSize: "0.75rem",
+                borderRadius: 1.5,
+                backgroundColor: "#ffffff",
+                "& fieldset": {
+                  borderColor: alpha("#667eea", 0.2),
+                },
+                "&:hover fieldset": {
+                  borderColor: alpha("#667eea", 0.4),
+                },
+                "&.Mui-focused fieldset": {
+                  borderColor: "#667eea",
+                },
+              },
+              "& .MuiInputLabel-root": {
+                fontSize: "0.75rem",
+                "&.Mui-focused": {
+                  color: "#667eea",
+                },
+              },
+            }}
+          >
+            <MenuItem value="desc" sx={{ fontSize: "0.75rem" }}>
+              Newest
+            </MenuItem>
+            <MenuItem value="asc" sx={{ fontSize: "0.75rem" }}>
+              Oldest
+            </MenuItem>
+          </TextField>
+        </Box>
       </Paper>
 
-      {/* Stats Overview */}
+      {/* Quick Stats */}
       <Paper
         elevation={0}
         sx={{
-          p: 1,
+          p: { xs: 2, md: 1 },
           border: "1px solid",
           borderColor: alpha("#667eea", 0.1),
           borderRadius: 2,
@@ -357,77 +363,69 @@ export function LeftSidebar({
             letterSpacing: "0.5px",
           }}
         >
-          <FilterList sx={{ fontSize: 16 }} />
-          Overview
+          <TrendingUp sx={{ fontSize: 16 }} />
+          Quick Stats
         </Typography>
 
         <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-          {statItems.map((stat) => (
+          {statItems.map((item) => (
             <Box
-              key={stat.label}
+              key={item.label}
               sx={{
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
                 p: 1,
                 borderRadius: 1.5,
-                backgroundColor: stat.bgColor,
-                border: `1px solid ${alpha(stat.color, 0.15)}`,
-                cursor: "pointer",
+                backgroundColor: item.bgColor,
+                border: `1px solid ${alpha(item.color, 0.2)}`,
                 transition: "all 0.25s ease-in-out",
+                cursor: "pointer",
                 "&:hover": {
-                  boxShadow: `0 4px 12px ${alpha(stat.color, 0.15)}`,
-                  backgroundColor: alpha(stat.color, 0.15),
-                  borderColor: alpha(stat.color, 0.3),
+                  backgroundColor: alpha(item.color, 0.15),
+                  borderColor: alpha(item.color, 0.4),
+                  transform: "translateX(4px)",
                 },
-              }}
-              onClick={() => {
-                // FIX: Clean up undefined values when setting filters
-                const newFilters = { ...filters, page: 1 };
-
-                if (stat.label === "Pending") {
-                  newFilters.status = TaskStatus.PENDING;
-                } else if (stat.label === "In Progress") {
-                  newFilters.status = TaskStatus.IN_PROGRESS;
-                } else if (stat.label === "Completed") {
-                  newFilters.status = TaskStatus.COMPLETED;
-                } else {
-                  delete newFilters.status;
-                }
-
-                setFilters(newFilters);
               }}
             >
               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                 <Box
                   sx={{
-                    color: stat.color,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    width: 32,
-                    height: 32,
+                    width: 28,
+                    height: 28,
                     borderRadius: 1,
-                    backgroundColor: alpha(stat.color, 0.15),
+                    backgroundColor: alpha(item.color, 0.15),
+                    color: item.color,
                   }}
                 >
-                  {stat.icon}
+                  {item.icon}
                 </Box>
                 <Typography
                   variant="caption"
                   fontWeight={600}
-                  fontSize="0.8rem"
+                  fontSize="0.75rem"
                 >
-                  {stat.label}
+                  {item.label}
                 </Typography>
               </Box>
-              <Typography
-                variant="h6"
-                fontWeight={700}
-                sx={{ color: stat.color, fontSize: "1.1rem" }}
-              >
-                {stat.value}
-              </Typography>
+              <Chip
+                label={item.value}
+                size="small"
+                sx={{
+                  height: 20,
+                  fontSize: "0.7rem",
+                  fontWeight: 700,
+                  backgroundColor: alpha(item.color, 0.2),
+                  color: item.color,
+                  border: `1px solid ${alpha(item.color, 0.3)}`,
+                  "& .MuiChip-label": {
+                    px: 1,
+                  },
+                }}
+              />
             </Box>
           ))}
         </Box>
@@ -440,12 +438,17 @@ export function LeftSidebar({
         maxWidth="sm"
         fullWidth
       >
-        <DialogTitle sx={{ pb: 1, py: 1.5 }}>
-          <Typography fontWeight={700} fontSize="1.125rem">
-            Create New Task
-          </Typography>
+        <DialogTitle
+          sx={{
+            fontWeight: 700,
+            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+            color: "white",
+            py: 2,
+          }}
+        >
+          Create New Task
         </DialogTitle>
-        <DialogContent sx={{ pt: 1.5 }}>
+        <DialogContent sx={{ mt: 2 }}>
           <TaskForm
             onSuccess={() => setIsCreateModalOpen(false)}
             onCancel={() => setIsCreateModalOpen(false)}

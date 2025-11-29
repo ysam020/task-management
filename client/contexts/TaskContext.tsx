@@ -131,7 +131,7 @@ export const TaskProvider: React.FC<{ children: ReactNode }> = ({
   useEffect(() => {
     const normalizedFilters = normalizeFilters(filters);
 
-    // Only fetch if filters actually changed
+    // Only fetch if filters changed
     if (
       !lastFetchedFiltersRef.current ||
       !areFiltersEqual(normalizedFilters, lastFetchedFiltersRef.current)
@@ -213,7 +213,7 @@ export const TaskProvider: React.FC<{ children: ReactNode }> = ({
         newStatus = TaskStatus.PENDING;
     }
 
-    // Optimistic update: Update the UI immediately
+    // Optimistic update
     setTasks((prevTasks) =>
       prevTasks.map((task) =>
         task.id === id ? { ...task, status: newStatus } : task

@@ -1,7 +1,7 @@
 import express, { Application } from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import config from "./config/index";
+import { config } from "./config/index";
 import routes from "./routes";
 import {
   errorHandler,
@@ -25,21 +25,13 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-// Request logging middleware (development only)
-if (config.nodeEnv === "development") {
-  app.use((req, res, next) => {
-    console.log(`${req.method} ${req.path}`);
-    next();
-  });
-}
-
 // API routes
 app.use("/api", routes);
 
 // 404 handler
 app.use(notFoundHandler);
 
-// Error handler (must be last)
+// Error handler
 app.use(errorHandler);
 
 export default app;

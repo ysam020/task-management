@@ -109,7 +109,7 @@ export function TaskCard({ task, onClick, onEdit, onDelete }: TaskCardProps) {
             mb: 0.75,
           }}
         >
-          {/* 3-State Checkbox - Always Visible */}
+          {/* 3-State Checkbox */}
           <Tooltip
             title={`Click to mark as ${getNextStatus()}`}
             placement="top"
@@ -158,7 +158,7 @@ export function TaskCard({ task, onClick, onEdit, onDelete }: TaskCardProps) {
             {task.title}
           </Typography>
 
-          {/* Actions - Compact */}
+          {/* Actions */}
           <Box
             sx={{
               display: "flex",
@@ -202,7 +202,7 @@ export function TaskCard({ task, onClick, onEdit, onDelete }: TaskCardProps) {
           </Box>
         </Box>
 
-        {/* Description - Compact */}
+        {/* Description */}
         {task.description && (
           <Typography
             variant="body2"
@@ -222,7 +222,7 @@ export function TaskCard({ task, onClick, onEdit, onDelete }: TaskCardProps) {
           </Typography>
         )}
 
-        {/* Footer - Compact */}
+        {/* Footer */}
         <Box
           sx={{
             display: "flex",

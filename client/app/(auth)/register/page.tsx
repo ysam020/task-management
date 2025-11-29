@@ -2,21 +2,8 @@
 
 import { Formik, Form, Field } from "formik";
 import Link from "next/link";
-import {
-  Box,
-  Typography,
-  TextField,
-  Button,
-  InputAdornment,
-  Stack,
-  alpha,
-} from "@mui/material";
-import {
-  PersonOutlineOutlined,
-  EmailOutlined,
-  LockOutlined,
-  HowToRegOutlined,
-} from "@mui/icons-material";
+import { Box, Typography, TextField, Button, Stack } from "@mui/material";
+import { HowToRegOutlined } from "@mui/icons-material";
 import { useAuth } from "@/contexts/AuthContext";
 import { registerSchema } from "@/lib/validations/auth.schema";
 

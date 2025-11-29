@@ -7,15 +7,10 @@ import {
   Typography,
   TextField,
   Button,
-  InputAdornment,
   Stack,
   alpha,
 } from "@mui/material";
-import {
-  EmailOutlined,
-  LockOutlined,
-  LoginOutlined,
-} from "@mui/icons-material";
+import { LoginOutlined } from "@mui/icons-material";
 import { useAuth } from "@/contexts/AuthContext";
 import { loginSchema } from "@/lib/validations/auth.schema";
 

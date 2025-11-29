@@ -1,11 +1,12 @@
+import { PrismaClient } from "@prisma/client";
 import dotenv from "dotenv";
 import type { SignOptions } from "jsonwebtoken";
 
-// only keep the string variant from expiresIn
 type JwtExpiry = Extract<SignOptions["expiresIn"], string>;
 
 dotenv.config();
 
+// Configuration
 interface Config {
   port: number;
   nodeEnv: string;
@@ -61,4 +62,20 @@ const validateConfig = () => {
 
 validateConfig();
 
-export default config;
+// Prisma Client
+const prismaClientSingleton = () => {
+  return new PrismaClient({
+    log:
+      config.nodeEnv === "development" ? ["query", "error", "warn"] : ["error"],
+  });
+};
+
+declare global {
+  var prisma: undefined | ReturnType<typeof prismaClientSingleton>;
+}
+
+const prisma = globalThis.prisma ?? prismaClientSingleton();
+
+if (config.nodeEnv !== "production") globalThis.prisma = prisma;
+
+export { config, prisma };

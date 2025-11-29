@@ -65,19 +65,15 @@ function getRandomDate(daysAgo: number): Date {
 
 async function seedTasks() {
   try {
-    console.log("🌱 Starting to seed tasks...");
-
-    // Check if user with id 2 exists
+    // Check if user with id 1 exists
     const user = await prisma.user.findUnique({
-      where: { id: 2 },
+      where: { id: 1 },
     });
 
     if (!user) {
-      console.error("❌ User with id 2 not found. Please create a user first.");
+      console.error("User with id 1 not found. Please create a user first.");
       process.exit(1);
     }
-
-    console.log(`✅ Found user: ${user.email}`);
 
     // Create 50 random tasks
     const tasks = [];
@@ -101,7 +97,7 @@ async function seedTasks() {
       });
     }
 
-    // Insert tasks in batches for better performance
+    // Insert tasks in batches
     const batchSize = 10;
     let created = 0;
 
@@ -113,27 +109,9 @@ async function seedTasks() {
       });
 
       created += batch.length;
-      console.log(`📝 Created ${created}/${tasks.length} tasks...`);
     }
-
-    console.log(`✅ Successfully created ${created} tasks!`);
-
-    // Show summary
-    const stats = await prisma.task.groupBy({
-      by: ["status"],
-      where: { userId: 2 },
-      _count: true,
-    });
-
-    console.log("\n📊 Task Summary:");
-    stats.forEach((stat) => {
-      console.log(`  ${stat.status}: ${stat._count} tasks`);
-    });
-
-    const total = await prisma.task.count({ where: { userId: 2 } });
-    console.log(`  TOTAL: ${total} tasks\n`);
   } catch (error) {
-    console.error("❌ Error seeding tasks:", error);
+    console.error("Error seeding tasks:", error);
     throw error;
   } finally {
     await prisma.$disconnect();
@@ -143,10 +121,9 @@ async function seedTasks() {
 // Run the seed function
 seedTasks()
   .then(() => {
-    console.log("🎉 Seeding completed successfully!");
     process.exit(0);
   })
   .catch((error) => {
-    console.error("💥 Seeding failed:", error);
+    console.error("Seeding failed:", error);
     process.exit(1);
   });

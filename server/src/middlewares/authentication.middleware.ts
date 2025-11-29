@@ -21,7 +21,7 @@ export const authenticate = async (
       throw new UnauthorizedError("No token provided");
     }
 
-    const token = authHeader.substring(7); // Remove 'Bearer ' prefix
+    const token = authHeader.substring(7);
 
     const decoded = verifyAccessToken(token);
 

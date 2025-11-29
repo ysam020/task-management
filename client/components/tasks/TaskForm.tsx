@@ -1,19 +1,7 @@
 "use client";
 
 import { Formik, Form, Field } from "formik";
-import {
-  TextField,
-  MenuItem,
-  Button,
-  Box,
-  Stack,
-  InputAdornment,
-} from "@mui/material";
-import {
-  TitleOutlined,
-  DescriptionOutlined,
-  FlagOutlined,
-} from "@mui/icons-material";
+import { TextField, MenuItem, Button, Box, Stack } from "@mui/material";
 import { Task, TaskStatus } from "@/lib/types";
 import { useTasks } from "@/contexts/TaskContext";
 import {

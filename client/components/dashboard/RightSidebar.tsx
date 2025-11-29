@@ -94,7 +94,7 @@ export function RightSidebar() {
           {recentActivity.length === 0 ? (
             <Box
               sx={{
-                p: 0,
+                p: 2,
                 textAlign: "center",
                 borderRadius: 1.5,
                 backgroundColor: alpha("#667eea", 0.05),
@@ -165,38 +165,21 @@ export function RightSidebar() {
                       textOverflow: "ellipsis",
                       whiteSpace: "nowrap",
                       fontSize: "0.8rem",
-                      mb: 0.5,
-                      color: "text.primary",
+                      mb: 0.25,
                     }}
                   >
                     {task.title}
                   </Typography>
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                    <Typography
-                      variant="caption"
-                      sx={{
-                        fontSize: "0.6rem",
-                        color: statusConfig[task.status].color,
-                        fontWeight: 600,
-                        px: 1,
-                        py: 0.25,
-                        borderRadius: 1,
-                        backgroundColor: alpha(
-                          statusConfig[task.status].color,
-                          0.1
-                        ),
-                      }}
-                    >
-                      {statusConfig[task.status].label}
-                    </Typography>
-                    <Typography
-                      variant="caption"
-                      color="text.secondary"
-                      fontSize="0.7rem"
-                    >
-                      {formatDate(task.updatedAt)}
-                    </Typography>
-                  </Box>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{
+                      display: "block",
+                      fontSize: "0.7rem",
+                    }}
+                  >
+                    {formatDate(task.updatedAt)}
+                  </Typography>
                 </Box>
               </Box>
             ))

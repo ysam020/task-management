@@ -1,4 +1,4 @@
-import prisma from "../config/database";
+import { prisma } from "../config/index";
 import { NotFoundError, ForbiddenError } from "../utils/errors";
 import {
   CreateTaskInput,
@@ -100,7 +100,6 @@ export class TaskService {
     taskId: number,
     data: UpdateTaskInput
   ): Promise<Task> {
-    // Verify task exists and belongs to user
     await this.getTaskById(userId, taskId);
 
     const task = await prisma.task.update({
@@ -118,7 +117,6 @@ export class TaskService {
   }
 
   async deleteTask(userId: number, taskId: number): Promise<void> {
-    // Verify task exists and belongs to user
     await this.getTaskById(userId, taskId);
 
     await prisma.task.delete({

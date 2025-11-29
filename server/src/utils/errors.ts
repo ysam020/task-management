@@ -9,12 +9,6 @@ export class AppError extends Error {
   }
 }
 
-export class BadRequestError extends AppError {
-  constructor(message: string = "Bad Request") {
-    super(400, message);
-  }
-}
-
 export class UnauthorizedError extends AppError {
   constructor(message: string = "Unauthorized") {
     super(401, message);
@@ -42,11 +36,5 @@ export class ConflictError extends AppError {
 export class ValidationError extends AppError {
   constructor(message: string = "Validation failed", public errors?: any) {
     super(422, message);
-  }
-}
-
-export class InternalServerError extends AppError {
-  constructor(message: string = "Internal server error") {
-    super(500, message);
   }
 }

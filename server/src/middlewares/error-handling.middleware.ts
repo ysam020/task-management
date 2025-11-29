@@ -4,9 +4,9 @@ import { Prisma } from "@prisma/client";
 
 export const errorHandler = (
   err: Error,
-  req: Request,
+  _req: Request,
   res: Response,
-  next: NextFunction
+  _next: NextFunction
 ) => {
   // Handle operational errors
   if (err instanceof AppError) {
@@ -61,7 +61,7 @@ export const errorHandler = (
 export const notFoundHandler = (
   req: Request,
   res: Response,
-  next: NextFunction
+  _next: NextFunction
 ) => {
   res.status(404).json({
     status: "error",

@@ -57,7 +57,7 @@ export default function DashboardLayout({
           component="main"
           sx={{
             flexGrow: 1,
-            overflow: "hidden",
+            overflow: { xs: "auto", md: "hidden" },
             display: "flex",
             flexDirection: "column",
           }}

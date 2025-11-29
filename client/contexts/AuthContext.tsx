@@ -37,7 +37,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       const token = tokenStorage.getAccessToken();
       if (token) {
         try {
-          // Fetch current user from API
+          // Fetch current user
           const userData = await authApi.getCurrentUser();
           setUser(userData);
         } catch (error) {
