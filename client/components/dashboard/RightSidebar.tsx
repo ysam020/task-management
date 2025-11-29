@@ -5,6 +5,7 @@ import {
   CheckCircle,
   RadioButtonUnchecked,
   AccessTime,
+  TrendingUp,
 } from "@mui/icons-material";
 import { TaskStatus } from "@/lib/types";
 import { formatDate } from "@/lib/utils/helper";
@@ -42,70 +43,114 @@ export function RightSidebar() {
     .slice(0, 5);
 
   return (
-    <Box>
-      {/* Activity Feed - Compact */}
+    <Box
+      sx={{
+        height: "100%",
+        overflowY: "auto",
+        p: 1,
+        borderLeft: "1px solid",
+        borderColor: "divider",
+        background: "linear-gradient(180deg, #fefeff 0%, #f8f9ff 100%)",
+        "&::-webkit-scrollbar": { width: "6px" },
+        "&::-webkit-scrollbar-thumb": {
+          backgroundColor: "rgba(102, 126, 234, 0.3)",
+          borderRadius: "3px",
+          "&:hover": {
+            backgroundColor: "rgba(102, 126, 234, 0.5)",
+          },
+        },
+      }}
+    >
+      {/* Recent Activity */}
       <Paper
         elevation={0}
         sx={{
-          p: 1.5,
-          mb: 1.5,
+          p: 1,
           border: "1px solid",
-          borderColor: "divider",
-          borderRadius: 1.5,
-          background: (theme) =>
-            theme.palette.mode === "dark"
-              ? "rgba(255,255,255,0.02)"
-              : "rgba(0,0,0,0.01)",
+          borderColor: alpha("#667eea", 0.1),
+          borderRadius: 2,
+          background: "linear-gradient(135deg, #ffffff 0%, #f9fafb 100%)",
+          boxShadow: "0 2px 8px rgba(102, 126, 234, 0.08)",
         }}
       >
         <Typography
           variant="caption"
           fontWeight={700}
-          sx={{ mb: 1, textTransform: "uppercase", display: "block" }}
+          sx={{
+            mb: 1.5,
+            display: "flex",
+            alignItems: "center",
+            gap: 0.5,
+            textTransform: "uppercase",
+            color: "#667eea",
+            letterSpacing: "0.5px",
+          }}
         >
+          <TrendingUp sx={{ fontSize: 16 }} />
           Recent Activity
         </Typography>
 
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
           {recentActivity.length === 0 ? (
-            <Typography
-              variant="caption"
-              color="text.secondary"
-              sx={{ textAlign: "center", py: 2 }}
+            <Box
+              sx={{
+                p: 0,
+                textAlign: "center",
+                borderRadius: 1.5,
+                backgroundColor: alpha("#667eea", 0.05),
+                border: `1px dashed ${alpha("#667eea", 0.2)}`,
+              }}
             >
-              No recent activity
-            </Typography>
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                fontSize="0.75rem"
+              >
+                No recent activity
+              </Typography>
+            </Box>
           ) : (
             recentActivity.map((task) => (
               <Box
                 key={task.id}
                 sx={{
                   display: "flex",
-                  alignItems: "flex-start",
-                  gap: 1,
+                  gap: 1.5,
                   p: 1,
-                  borderRadius: 1,
-                  backgroundColor: (theme) =>
-                    theme.palette.mode === "dark"
-                      ? "rgba(255,255,255,0.03)"
-                      : "rgba(0,0,0,0.02)",
-                  transition: "all 0.2s",
+                  borderRadius: 1.5,
+                  backgroundColor: "#ffffff",
+                  border: `1px solid ${alpha(
+                    statusConfig[task.status].color,
+                    0.15
+                  )}`,
+                  boxShadow: `0 2px 4px ${alpha(
+                    statusConfig[task.status].color,
+                    0.08
+                  )}`,
+                  transition: "all 0.25s ease-in-out",
                   cursor: "pointer",
                   "&:hover": {
-                    backgroundColor: (theme) =>
-                      theme.palette.mode === "dark"
-                        ? "rgba(255,255,255,0.05)"
-                        : "rgba(0,0,0,0.04)",
+                    backgroundColor: statusConfig[task.status].bgColor,
+                    borderColor: alpha(statusConfig[task.status].color, 0.3),
+                    transform: "translateX(-4px)",
+                    boxShadow: `0 4px 12px ${alpha(
+                      statusConfig[task.status].color,
+                      0.2
+                    )}`,
                   },
                 }}
               >
                 <Avatar
                   sx={{
-                    width: 24,
-                    height: 24,
-                    fontSize: "0.7rem",
-                    bgcolor: statusConfig[task.status].bgColor,
+                    width: 36,
+                    height: 36,
+                    backgroundColor: statusConfig[task.status].bgColor,
                     color: statusConfig[task.status].color,
+                    fontSize: "0.75rem",
+                    border: `2px solid ${alpha(
+                      statusConfig[task.status].color,
+                      0.2
+                    )}`,
                   }}
                 >
                   {statusConfig[task.status].icon}
@@ -119,18 +164,39 @@ export function RightSidebar() {
                       overflow: "hidden",
                       textOverflow: "ellipsis",
                       whiteSpace: "nowrap",
-                      fontSize: "0.75rem",
+                      fontSize: "0.8rem",
+                      mb: 0.5,
+                      color: "text.primary",
                     }}
                   >
                     {task.title}
                   </Typography>
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                    sx={{ fontSize: "0.7rem" }}
-                  >
-                    {formatDate(task.updatedAt)}
-                  </Typography>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        fontSize: "0.6rem",
+                        color: statusConfig[task.status].color,
+                        fontWeight: 600,
+                        px: 1,
+                        py: 0.25,
+                        borderRadius: 1,
+                        backgroundColor: alpha(
+                          statusConfig[task.status].color,
+                          0.1
+                        ),
+                      }}
+                    >
+                      {statusConfig[task.status].label}
+                    </Typography>
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      fontSize="0.7rem"
+                    >
+                      {formatDate(task.updatedAt)}
+                    </Typography>
+                  </Box>
                 </Box>
               </Box>
             ))

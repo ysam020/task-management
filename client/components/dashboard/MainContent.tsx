@@ -13,11 +13,27 @@ import { ViewModule, ViewList } from "@mui/icons-material";
 import { useTasks } from "@/contexts/TaskContext";
 import { TaskCard } from "./TaskCard";
 import { TaskPagination } from "./TaskPagination";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
+const VIEW_MODE_STORAGE_KEY = "taskViewMode";
 
 export function MainContent() {
   const { tasks, isLoading, pagination } = useTasks();
-  const [viewMode, setViewMode] = useState<"grid" | "list">("list");
+  const [viewMode, setViewMode] = useState<"grid" | "list">(() => {
+    // Initialize from localStorage if available
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem(VIEW_MODE_STORAGE_KEY);
+      return saved === "grid" || saved === "list" ? saved : "grid";
+    }
+    return "grid";
+  });
+
+  // Save to localStorage whenever viewMode changes
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem(VIEW_MODE_STORAGE_KEY, viewMode);
+    }
+  }, [viewMode]);
 
   if (isLoading) {
     return (
@@ -74,40 +90,39 @@ export function MainContent() {
         </Box>
 
         <Box sx={{ display: "flex", gap: 0.5 }}>
-          <Tooltip title="List View">
-            <IconButton
-              size="small"
-              onClick={() => setViewMode("list")}
-              sx={{
-                backgroundColor:
-                  viewMode === "list" ? "primary.main" : "transparent",
-                color: viewMode === "list" ? "white" : "text.secondary",
-                "&:hover": {
-                  backgroundColor:
-                    viewMode === "list" ? "primary.dark" : alpha("#000", 0.05),
-                },
-              }}
-            >
-              <ViewList fontSize="small" />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Grid View">
-            <IconButton
-              size="small"
-              onClick={() => setViewMode("grid")}
-              sx={{
-                backgroundColor:
-                  viewMode === "grid" ? "primary.main" : "transparent",
-                color: viewMode === "grid" ? "white" : "text.secondary",
-                "&:hover": {
-                  backgroundColor:
-                    viewMode === "grid" ? "primary.dark" : alpha("#000", 0.05),
-                },
-              }}
-            >
-              <ViewModule fontSize="small" />
-            </IconButton>
-          </Tooltip>
+          {viewMode === "grid" ? (
+            <Tooltip title="List View">
+              <IconButton
+                size="small"
+                onClick={() => setViewMode("list")}
+                sx={{
+                  backgroundColor: "primary.main",
+                  color: "white",
+                  "&:hover": {
+                    backgroundColor: "primary.main",
+                  },
+                }}
+              >
+                <ViewList fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          ) : (
+            <Tooltip title="Grid View">
+              <IconButton
+                size="small"
+                onClick={() => setViewMode("grid")}
+                sx={{
+                  backgroundColor: "primary.main",
+                  color: "white",
+                  "&:hover": {
+                    backgroundColor: "primary.main",
+                  },
+                }}
+              >
+                <ViewModule fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          )}
         </Box>
       </Box>
 
@@ -133,10 +148,7 @@ export function MainContent() {
               border: "2px dashed",
               borderColor: "divider",
               borderRadius: 2,
-              background: (theme) =>
-                theme.palette.mode === "dark"
-                  ? "rgba(255,255,255,0.02)"
-                  : "rgba(0,0,0,0.01)",
+              background: "rgba(0,0,0,0.01)",
             }}
           >
             <Box
@@ -174,7 +186,7 @@ export function MainContent() {
             }}
           >
             {tasks.map((task) => (
-              <TaskCard key={task.id} task={task} viewMode={viewMode} />
+              <TaskCard key={task.id} task={task} />
             ))}
           </Box>
         )}

@@ -42,30 +42,25 @@ export function LeftSidebar({
   const { stats, filters, setFilters } = useTasks();
   const [searchInput, setSearchInput] = useState(filters.search || "");
 
-  // 🔹 FIX: Use useRef to store the timeout ID for debouncing
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // 🔹 FIX: Handle search with manual debouncing
   useEffect(() => {
-    // Clear previous timeout
     if (searchTimeoutRef.current) {
       clearTimeout(searchTimeoutRef.current);
     }
 
-    // Set new timeout
     searchTimeoutRef.current = setTimeout(() => {
       if (searchInput !== filters.search) {
         setFilters({ ...filters, search: searchInput || undefined, page: 1 });
       }
     }, 500);
 
-    // Cleanup on unmount
     return () => {
       if (searchTimeoutRef.current) {
         clearTimeout(searchTimeoutRef.current);
       }
     };
-  }, [searchInput]); // Only depend on searchInput, not filters
+  }, [searchInput]);
 
   const statItems = [
     {
@@ -101,67 +96,79 @@ export function LeftSidebar({
   return (
     <Box
       sx={{
+        p: 1,
+        borderRight: "1px solid",
+        borderColor: "divider",
         height: "100%",
         overflowY: "auto",
+        background: "linear-gradient(180deg, #f8f9ff 0%, #fefeff 100%)",
         "&::-webkit-scrollbar": { width: 6 },
         "&::-webkit-scrollbar-thumb": {
-          backgroundColor: "rgba(0,0,0,0.2)",
+          backgroundColor: "rgba(102, 126, 234, 0.3)",
           borderRadius: 3,
+          "&:hover": {
+            backgroundColor: "rgba(102, 126, 234, 0.5)",
+          },
         },
       }}
     >
-      {/* Create Task Button - Compact */}
+      {/* Create Task Button */}
       <Button
         fullWidth
         variant="contained"
         startIcon={<Add />}
         onClick={onCreateTask}
         sx={{
-          mb: 1.5,
-          py: 1,
+          mb: 2,
+          py: 1.2,
           fontWeight: 700,
           fontSize: "0.875rem",
           background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-          boxShadow: "0 2px 8px rgba(102, 126, 234, 0.3)",
+          boxShadow: "0 4px 12px rgba(102, 126, 234, 0.35)",
+          borderRadius: 2,
+          textTransform: "none",
           "&:hover": {
             background: "linear-gradient(135deg, #5568d3 0%, #6a4292 100%)",
-            boxShadow: "0 4px 12px rgba(102, 126, 234, 0.4)",
+            boxShadow: "0 6px 16px rgba(102, 126, 234, 0.45)",
+            transform: "translateY(-1px)",
           },
+          transition: "all 0.2s ease-in-out",
         }}
       >
         New Task
       </Button>
 
-      {/* Filters - Compact */}
+      {/* Filters */}
       <Paper
         elevation={0}
         sx={{
-          p: 1.5,
+          p: 1,
           border: "1px solid",
-          borderColor: "divider",
-          borderRadius: 1.5,
-          background: (theme) =>
-            theme.palette.mode === "dark"
-              ? "rgba(255,255,255,0.02)"
-              : "rgba(0,0,0,0.01)",
+          borderColor: alpha("#667eea", 0.1),
+          borderRadius: 2,
+          background: "linear-gradient(135deg, #ffffff 0%, #f9fafb 100%)",
+          boxShadow: "0 2px 8px rgba(102, 126, 234, 0.08)",
+          mb: 2,
         }}
       >
         <Typography
           variant="caption"
           fontWeight={700}
           sx={{
-            mb: 1,
+            mb: 1.5,
             display: "flex",
             alignItems: "center",
             gap: 0.5,
             textTransform: "uppercase",
+            color: "#667eea",
+            letterSpacing: "0.5px",
           }}
         >
           <Search sx={{ fontSize: 16 }} />
           Filters
         </Typography>
 
-        {/* Search - Compact */}
+        {/* Search */}
         <TextField
           fullWidth
           size="small"
@@ -172,11 +179,20 @@ export function LeftSidebar({
             mb: 2,
             "& .MuiInputBase-root": {
               fontSize: "0.875rem",
+              borderRadius: 1.5,
+              backgroundColor: "#ffffff",
+              "&:hover": {
+                backgroundColor: "#fafbff",
+              },
+              "&.Mui-focused": {
+                backgroundColor: "#ffffff",
+                boxShadow: "0 0 0 3px rgba(102, 126, 234, 0.1)",
+              },
             },
           }}
         />
 
-        {/* Status Filter - Compact */}
+        {/* Status Filter */}
         <TextField
           select
           fullWidth
@@ -193,7 +209,13 @@ export function LeftSidebar({
               page: 1,
             })
           }
-          sx={{ mb: 2 }}
+          sx={{
+            mb: 2,
+            "& .MuiInputBase-root": {
+              borderRadius: 1.5,
+              backgroundColor: "#ffffff",
+            },
+          }}
         >
           <MenuItem value="all">All Status</MenuItem>
           <MenuItem value={TaskStatus.PENDING}>Pending</MenuItem>
@@ -201,7 +223,7 @@ export function LeftSidebar({
           <MenuItem value={TaskStatus.COMPLETED}>Completed</MenuItem>
         </TextField>
 
-        {/* Sort By - Compact */}
+        {/* Sort By */}
         <TextField
           select
           fullWidth
@@ -217,6 +239,12 @@ export function LeftSidebar({
               page: 1,
             });
           }}
+          sx={{
+            "& .MuiInputBase-root": {
+              borderRadius: 1.5,
+              backgroundColor: "#ffffff",
+            },
+          }}
         >
           <MenuItem value="createdAt-desc">Newest First</MenuItem>
           <MenuItem value="createdAt-asc">Oldest First</MenuItem>
@@ -225,10 +253,10 @@ export function LeftSidebar({
           <MenuItem value="updatedAt-desc">Recently Updated</MenuItem>
         </TextField>
 
-        {/* Active Filters - Compact */}
+        {/* Active Filters */}
         {(filters.status || filters.search) && (
           <>
-            <Divider sx={{ my: 1 }} />
+            <Divider sx={{ my: 1.5 }} />
             <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
               {filters.status && (
                 <Chip
@@ -237,7 +265,21 @@ export function LeftSidebar({
                   onDelete={() =>
                     setFilters({ ...filters, status: undefined, page: 1 })
                   }
-                  sx={{ borderRadius: 1, height: 22, fontSize: "0.75rem" }}
+                  sx={{
+                    borderRadius: 1.5,
+                    height: 24,
+                    fontSize: "0.75rem",
+                    background:
+                      "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                    color: "#ffffff",
+                    fontWeight: 600,
+                    "& .MuiChip-deleteIcon": {
+                      color: "rgba(255, 255, 255, 0.8)",
+                      "&:hover": {
+                        color: "#ffffff",
+                      },
+                    },
+                  }}
                 />
               )}
               {filters.search && (
@@ -250,7 +292,21 @@ export function LeftSidebar({
                     setSearchInput("");
                     setFilters({ ...filters, search: undefined, page: 1 });
                   }}
-                  sx={{ borderRadius: 1, height: 22, fontSize: "0.75rem" }}
+                  sx={{
+                    borderRadius: 1.5,
+                    height: 24,
+                    fontSize: "0.75rem",
+                    background:
+                      "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                    color: "#ffffff",
+                    fontWeight: 600,
+                    "& .MuiChip-deleteIcon": {
+                      color: "rgba(255, 255, 255, 0.8)",
+                      "&:hover": {
+                        color: "#ffffff",
+                      },
+                    },
+                  }}
                 />
               )}
             </Box>
@@ -258,37 +314,36 @@ export function LeftSidebar({
         )}
       </Paper>
 
-      {/* Stats Overview - Compact */}
+      {/* Stats Overview */}
       <Paper
         elevation={0}
         sx={{
-          p: 1.5,
-          mt: 1.5,
+          p: 1,
           border: "1px solid",
-          borderColor: "divider",
-          borderRadius: 1.5,
-          background: (theme) =>
-            theme.palette.mode === "dark"
-              ? "rgba(255,255,255,0.02)"
-              : "rgba(0,0,0,0.01)",
+          borderColor: alpha("#667eea", 0.1),
+          borderRadius: 2,
+          background: "linear-gradient(135deg, #ffffff 0%, #f9fafb 100%)",
+          boxShadow: "0 2px 8px rgba(102, 126, 234, 0.08)",
         }}
       >
         <Typography
           variant="caption"
           fontWeight={700}
           sx={{
-            mb: 1,
+            mb: 1.5,
             display: "flex",
             alignItems: "center",
             gap: 0.5,
             textTransform: "uppercase",
+            color: "#667eea",
+            letterSpacing: "0.5px",
           }}
         >
           <FilterList sx={{ fontSize: 16 }} />
           Overview
         </Typography>
 
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 0.75 }}>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
           {statItems.map((stat) => (
             <Box
               key={stat.label}
@@ -297,13 +352,15 @@ export function LeftSidebar({
                 alignItems: "center",
                 justifyContent: "space-between",
                 p: 1,
-                borderRadius: 1,
+                borderRadius: 1.5,
                 backgroundColor: stat.bgColor,
+                border: `1px solid ${alpha(stat.color, 0.15)}`,
                 cursor: "pointer",
-                transition: "all 0.2s",
+                transition: "all 0.25s ease-in-out",
                 "&:hover": {
-                  transform: "translateX(3px)",
-                  boxShadow: `0 1px 4px ${alpha(stat.color, 0.2)}`,
+                  boxShadow: `0 4px 12px ${alpha(stat.color, 0.15)}`,
+                  backgroundColor: alpha(stat.color, 0.15),
+                  borderColor: alpha(stat.color, 0.3),
                 },
               }}
               onClick={() => {
@@ -330,16 +387,33 @@ export function LeftSidebar({
                 }
               }}
             >
-              <Box sx={{ display: "flex", alignItems: "center", gap: 0.75 }}>
-                <Box sx={{ color: stat.color }}>{stat.icon}</Box>
-                <Typography variant="caption" fontWeight={600}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Box
+                  sx={{
+                    color: stat.color,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    width: 32,
+                    height: 32,
+                    borderRadius: 1,
+                    backgroundColor: alpha(stat.color, 0.15),
+                  }}
+                >
+                  {stat.icon}
+                </Box>
+                <Typography
+                  variant="caption"
+                  fontWeight={600}
+                  fontSize="0.8rem"
+                >
                   {stat.label}
                 </Typography>
               </Box>
               <Typography
                 variant="h6"
                 fontWeight={700}
-                sx={{ color: stat.color, fontSize: "0.875rem" }}
+                sx={{ color: stat.color, fontSize: "1.1rem" }}
               >
                 {stat.value}
               </Typography>
@@ -356,7 +430,7 @@ export function LeftSidebar({
         fullWidth
       >
         <DialogTitle sx={{ pb: 1, py: 1.5 }}>
-          <Typography variant="h6" fontWeight={700} fontSize="1.125rem">
+          <Typography fontWeight={700} fontSize="1.125rem">
             Create New Task
           </Typography>
         </DialogTitle>

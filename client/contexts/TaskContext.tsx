@@ -4,7 +4,6 @@ import React, {
   createContext,
   useContext,
   useState,
-  useEffect,
   useCallback,
   ReactNode,
 } from "react";
@@ -16,6 +15,7 @@ import {
   TaskFilters,
   TasksResponse,
   TaskStats,
+  TaskStatus,
 } from "../lib/types";
 import toast from "react-hot-toast";
 
@@ -80,19 +80,6 @@ export const TaskProvider: React.FC<{ children: ReactNode }> = ({
     }
   }, []);
 
-  // 🔹 FIX: Automatically fetch tasks and stats when filters change
-  useEffect(() => {
-    fetchTasks();
-    fetchTaskStats();
-  }, [
-    filters.page,
-    filters.limit,
-    filters.status,
-    filters.search,
-    filters.sortBy,
-    filters.sortOrder,
-  ]);
-
   const createTask = async (data: CreateTaskData) => {
     try {
       setIsLoading(true);
@@ -145,15 +132,81 @@ export const TaskProvider: React.FC<{ children: ReactNode }> = ({
   };
 
   const toggleTaskStatus = async (id: number) => {
+    // Store the original task for rollback in case of error
+    const originalTask = tasks.find((task) => task.id === id);
+    if (!originalTask) return;
+
+    // Calculate the next status
+    let newStatus: TaskStatus;
+    switch (originalTask.status) {
+      case TaskStatus.PENDING:
+        newStatus = TaskStatus.IN_PROGRESS;
+        break;
+      case TaskStatus.IN_PROGRESS:
+        newStatus = TaskStatus.COMPLETED;
+        break;
+      case TaskStatus.COMPLETED:
+        newStatus = TaskStatus.PENDING;
+        break;
+      default:
+        newStatus = TaskStatus.PENDING;
+    }
+
+    // Optimistic update: Update the UI immediately
+    setTasks((prevTasks) =>
+      prevTasks.map((task) =>
+        task.id === id ? { ...task, status: newStatus } : task
+      )
+    );
+
+    // Update stats optimistically
+    if (stats) {
+      const statUpdates: Partial<TaskStats> = {};
+
+      // Decrease from old status
+      if (originalTask.status === TaskStatus.PENDING) {
+        statUpdates.pending = (stats.pending || 0) - 1;
+      } else if (originalTask.status === TaskStatus.IN_PROGRESS) {
+        statUpdates.inProgress = (stats.inProgress || 0) - 1;
+      } else if (originalTask.status === TaskStatus.COMPLETED) {
+        statUpdates.completed = (stats.completed || 0) - 1;
+      }
+
+      // Increase for new status
+      if (newStatus === TaskStatus.PENDING) {
+        statUpdates.pending = (statUpdates.pending ?? stats.pending ?? 0) + 1;
+      } else if (newStatus === TaskStatus.IN_PROGRESS) {
+        statUpdates.inProgress =
+          (statUpdates.inProgress ?? stats.inProgress ?? 0) + 1;
+      } else if (newStatus === TaskStatus.COMPLETED) {
+        statUpdates.completed =
+          (statUpdates.completed ?? stats.completed ?? 0) + 1;
+      }
+
+      setStats({ ...stats, ...statUpdates });
+    }
+
     try {
+      // Make the API call
       await taskApi.toggleTaskStatus(id);
       toast.success("Task status updated!");
-      await fetchTasks(filters);
-      await fetchTaskStats();
     } catch (error: any) {
+      // Rollback on error: revert to original task state
+      setTasks((prevTasks) =>
+        prevTasks.map((task) => (task.id === id ? originalTask : task))
+      );
+
+      // Rollback stats
+      if (stats) {
+        setStats(stats);
+      }
+
       const errorMessage =
         error.response?.data?.message || "Failed to toggle task status";
       toast.error(errorMessage);
+
+      // Optionally refetch to ensure consistency
+      await fetchTaskStats();
       throw error;
     }
   };

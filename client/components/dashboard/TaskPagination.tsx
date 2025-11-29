@@ -15,7 +15,7 @@ export function TaskPagination() {
   if (!pagination) return null;
 
   const { page, totalPages, hasPrev, hasNext, total } = pagination;
-
+  console.log(pagination);
   const handlePageChange = (newPage: number) => {
     setFilters({ ...filters, page: newPage });
   };
@@ -31,7 +31,7 @@ export function TaskPagination() {
       }}
     >
       <Typography variant="caption" color="text.secondary" fontSize="0.75rem">
-        Page {page} of {totalPages} ({total} total)
+        Page {page} of {totalPages}
       </Typography>
 
       <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>

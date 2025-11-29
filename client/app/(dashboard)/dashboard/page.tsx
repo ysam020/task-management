@@ -1,13 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Box } from "@mui/material";
+import { useTasks } from "@/contexts/TaskContext";
 import { LeftSidebar } from "@/components/dashboard/LeftSidebar";
 import { MainContent } from "@/components/dashboard/MainContent";
 import { RightSidebar } from "@/components/dashboard/RightSidebar";
+import { Task } from "@/lib/types";
 
 export default function DashboardPage() {
+  const { fetchTasks, fetchTaskStats } = useTasks();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+  useEffect(() => {
+    fetchTasks();
+    fetchTaskStats();
+    // Now fetchTasks and fetchTaskStats are stable references from useCallback
+  }, [fetchTasks, fetchTaskStats]);
 
   return (
     <Box
@@ -25,17 +34,17 @@ export default function DashboardPage() {
         py: 3,
       }}
     >
-      {/* Left Sidebar */}
+      {/* Left Sidebar - Filters & Quick Actions */}
       <LeftSidebar
         onCreateTask={() => setIsCreateModalOpen(true)}
         isCreateModalOpen={isCreateModalOpen}
         setIsCreateModalOpen={setIsCreateModalOpen}
       />
 
-      {/* Main Content */}
+      {/* Main Content - Task List */}
       <MainContent />
 
-      {/* Right Sidebar  */}
+      {/* Right Sidebar - Task Details & Activity */}
       <Box sx={{ display: { xs: "none", lg: "block" } }}>
         <RightSidebar />
       </Box>

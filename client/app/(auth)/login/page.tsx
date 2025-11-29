@@ -31,7 +31,6 @@ export default function LoginPage() {
             width: 64,
             height: 64,
             borderRadius: 3,
-            bgcolor: (theme) => alpha(theme.palette.primary.main, 0.1),
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -107,12 +106,6 @@ export default function LoginPage() {
                   textTransform: "none",
                   fontSize: "1rem",
                   mt: 1,
-                  boxShadow: (theme) =>
-                    `0 4px 12px ${alpha(theme.palette.primary.main, 0.25)}`,
-                  "&:hover": {
-                    boxShadow: (theme) =>
-                      `0 6px 16px ${alpha(theme.palette.primary.main, 0.35)}`,
-                  },
                 }}
               >
                 {isSubmitting ? "Signing in..." : "Sign In"}

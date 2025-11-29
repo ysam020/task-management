@@ -5,69 +5,62 @@ import {
   Card,
   CardContent,
   Typography,
-  Box,
   Chip,
+  Box,
   IconButton,
   alpha,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
   CircularProgress,
   Tooltip,
-  Menu,
-  MenuItem,
-  ListItemIcon,
-  ListItemText,
 } from "@mui/material";
 import {
-  MoreVert,
   Edit,
   Delete,
-  CheckCircle,
-  RadioButtonUnchecked,
-  AccessTime,
   Schedule,
+  CheckBox,
+  IndeterminateCheckBox,
+  CheckBoxOutlineBlank,
 } from "@mui/icons-material";
 import { Task, TaskStatus } from "@/lib/types";
-import { useTasks } from "@/contexts/TaskContext";
-import { TaskForm } from "@/components/tasks/TaskForm";
 import { formatDate } from "@/lib/utils/helper";
+import { useTasks } from "@/contexts/TaskContext";
 
-interface ModernTaskCardProps {
+interface TaskCardProps {
   task: Task;
-  viewMode: "grid" | "list";
+  onClick?: () => void;
+  onEdit?: () => void;
+  onDelete?: () => void;
 }
 
-export function TaskCard({ task, viewMode }: ModernTaskCardProps) {
-  const { deleteTask, toggleTaskStatus } = useTasks();
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
+export function TaskCard({ task, onClick, onEdit, onDelete }: TaskCardProps) {
+  const { toggleTaskStatus } = useTasks();
   const [isToggling, setIsToggling] = useState(false);
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
-  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    event.stopPropagation();
-    setAnchorEl(event.currentTarget);
+  // Status configuration
+  const statusConfig = {
+    [TaskStatus.PENDING]: {
+      color: "#f59e0b",
+      bgColor: alpha("#f59e0b", 0.1),
+      icon: <CheckBoxOutlineBlank sx={{ fontSize: 18 }} />,
+      label: "Pending",
+    },
+    [TaskStatus.IN_PROGRESS]: {
+      color: "#8b5cf6",
+      bgColor: alpha("#8b5cf6", 0.1),
+      icon: <IndeterminateCheckBox sx={{ fontSize: 18 }} />,
+      label: "In Progress",
+    },
+    [TaskStatus.COMPLETED]: {
+      color: "#10b981",
+      bgColor: alpha("#10b981", 0.1),
+      icon: <CheckBox sx={{ fontSize: 18 }} />,
+      label: "Completed",
+    },
   };
 
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
+  const config = statusConfig[task.status];
 
-  const handleDelete = async () => {
-    setIsDeleting(true);
-    try {
-      await deleteTask(task.id);
-      setIsDeleteModalOpen(false);
-    } finally {
-      setIsDeleting(false);
-    }
-  };
-
-  const handleToggle = async () => {
+  const handleToggle = async (e: React.MouseEvent) => {
+    e.stopPropagation();
     setIsToggling(true);
     try {
       await toggleTaskStatus(task.id);
@@ -76,316 +69,194 @@ export function TaskCard({ task, viewMode }: ModernTaskCardProps) {
     }
   };
 
-  const statusConfig = {
-    [TaskStatus.PENDING]: {
-      color: "#f59e0b",
-      bgColor: alpha("#f59e0b", 0.1),
-      icon: <RadioButtonUnchecked sx={{ fontSize: 16 }} />,
-      label: "Pending",
-    },
-    [TaskStatus.IN_PROGRESS]: {
-      color: "#8b5cf6",
-      bgColor: alpha("#8b5cf6", 0.1),
-      icon: <AccessTime sx={{ fontSize: 16 }} />,
-      label: "In Progress",
-    },
-    [TaskStatus.COMPLETED]: {
-      color: "#10b981",
-      bgColor: alpha("#10b981", 0.1),
-      icon: <CheckCircle sx={{ fontSize: 16 }} />,
-      label: "Completed",
-    },
+  // Get the next status for tooltip
+  const getNextStatus = () => {
+    switch (task.status) {
+      case TaskStatus.PENDING:
+        return "In Progress";
+      case TaskStatus.IN_PROGRESS:
+        return "Completed";
+      case TaskStatus.COMPLETED:
+        return "Pending";
+      default:
+        return "In Progress";
+    }
   };
 
-  const config = statusConfig[task.status];
-
   return (
-    <>
-      <Card
-        sx={{
-          cursor: "pointer",
-          transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
-          border: "1px solid",
-          borderColor: "divider",
-          borderLeft: `3px solid ${config.color}`,
-          position: "relative",
-          overflow: "visible",
-          background: (theme) =>
-            theme.palette.mode === "dark" ? "rgba(255,255,255,0.02)" : "white",
-          "&:hover": {
-            transform: "translateY(-1px)",
-            boxShadow: 1,
-            borderColor: "primary.light",
-          },
-        }}
-      >
-        <CardContent sx={{ p: 1.5, pb: "12px !important" }}>
-          {/* Header - Compact */}
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "flex-start",
-              mb: 1,
-            }}
+    <Card
+      onClick={onClick}
+      sx={{
+        position: "relative",
+        transition: "all 0.2s ease",
+        border: "1px solid",
+        borderColor: "divider",
+        borderRadius: 1.5,
+        boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
+        "&:hover": {
+          boxShadow: `0 6px 16px ${alpha(config.color, 0.2)}`,
+          borderColor: config.color,
+        },
+      }}
+    >
+      <CardContent sx={{ p: 1.5, "&:last-child": { pb: 1.5 } }}>
+        {/* Header with Checkbox */}
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "flex-start",
+            gap: 1,
+            mb: 0.75,
+          }}
+        >
+          {/* 3-State Checkbox - Always Visible */}
+          <Tooltip
+            title={`Click to mark as ${getNextStatus()}`}
+            placement="top"
           >
-            <Box sx={{ flex: 1, pr: 1 }}>
-              <Typography
-                variant="subtitle2"
-                fontWeight={700}
-                sx={{
-                  mb: 0.25,
-                  fontSize: "0.9375rem",
-                  lineHeight: 1.3,
-                  display: "-webkit-box",
-                  WebkitLineClamp: 2,
-                  WebkitBoxOrient: "vertical",
-                  overflow: "hidden",
-                }}
-              >
-                {task.title}
-              </Typography>
-            </Box>
-
-            <IconButton
-              size="small"
-              onClick={handleMenuOpen}
+            <Box
+              onClick={handleToggle}
               sx={{
-                opacity: 0.6,
-                p: 0.25,
-                "&:hover": { opacity: 1, backgroundColor: alpha("#000", 0.05) },
-              }}
-            >
-              <MoreVert fontSize="small" sx={{ fontSize: 18 }} />
-            </IconButton>
-          </Box>
-
-          {/* Description - Compact */}
-          {task.description && (
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              sx={{
-                mb: 1,
-                fontSize: "0.8125rem",
-                display: "-webkit-box",
-                WebkitLineClamp: viewMode === "grid" ? 2 : 2,
-                WebkitBoxOrient: "vertical",
-                overflow: "hidden",
-                lineHeight: 1.5,
-              }}
-            >
-              {task.description}
-            </Typography>
-          )}
-
-          {/* Footer - Compact */}
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              flexWrap: "wrap",
-              gap: 0.75,
-            }}
-          >
-            <Chip
-              icon={config.icon}
-              label={config.label}
-              size="small"
-              sx={{
-                backgroundColor: config.bgColor,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
                 color: config.color,
-                fontWeight: 600,
-                fontSize: "0.6875rem",
-                height: 20,
-                border: "none",
-                "& .MuiChip-icon": {
-                  color: config.color,
-                  fontSize: 16,
+                transition: "all 0.2s",
+                flexShrink: 0,
+                "&:hover": {
+                  transform: "scale(1.15)",
                 },
               }}
-            />
-
-            <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-              <Schedule sx={{ fontSize: 12, color: "text.secondary" }} />
-              <Typography
-                variant="caption"
-                color="text.secondary"
-                fontSize="0.7rem"
-              >
-                {formatDate(task.createdAt)}
-              </Typography>
+            >
+              {isToggling ? (
+                <CircularProgress size={20} sx={{ color: config.color }} />
+              ) : (
+                config.icon
+              )}
             </Box>
-          </Box>
+          </Tooltip>
 
-          {/* Quick Toggle Button - Compact */}
-          <Box
+          {/* Title */}
+          <Typography
+            variant="subtitle2"
+            fontWeight={700}
             sx={{
-              position: "absolute",
-              top: 8,
-              right: 32,
-              opacity: 0,
-              transition: "opacity 0.2s",
-              ".MuiCard-root:hover &": {
-                opacity: 1,
-              },
+              flex: 1,
+              lineHeight: 1.4,
+              fontSize: "0.875rem",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              display: "-webkit-box",
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: "vertical",
+              textDecoration:
+                task.status === TaskStatus.COMPLETED ? "line-through" : "none",
+              opacity: task.status === TaskStatus.COMPLETED ? 0.7 : 1,
             }}
           >
-            <Tooltip title="Toggle Status">
+            {task.title}
+          </Typography>
+
+          {/* Actions - Compact */}
+          <Box
+            sx={{
+              display: "flex",
+              gap: 0.25,
+              flexShrink: 0,
+            }}
+          >
+            <Tooltip title="Edit Task">
               <IconButton
                 size="small"
                 onClick={(e) => {
                   e.stopPropagation();
-                  handleToggle();
+                  onEdit?.();
                 }}
-                disabled={isToggling}
                 sx={{
                   p: 0.5,
-                  backgroundColor: alpha(config.color, 0.1),
-                  color: config.color,
-                  "&:hover": {
-                    backgroundColor: alpha(config.color, 0.2),
-                  },
+                  opacity: 0.7,
+                  "&:hover": { opacity: 1 },
                 }}
               >
-                {isToggling ? (
-                  <CircularProgress size={14} />
-                ) : task.status === TaskStatus.COMPLETED ? (
-                  <RadioButtonUnchecked sx={{ fontSize: 16 }} />
-                ) : (
-                  <CheckCircle sx={{ fontSize: 16 }} />
-                )}
+                <Edit sx={{ fontSize: 16 }} />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Delete Task">
+              <IconButton
+                size="small"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete?.();
+                }}
+                sx={{
+                  p: 0.5,
+                  opacity: 0.7,
+                  color: "#ef4444",
+                  "&:hover": { opacity: 1 },
+                }}
+              >
+                <Delete sx={{ fontSize: 16 }} />
               </IconButton>
             </Tooltip>
           </Box>
-        </CardContent>
-      </Card>
+        </Box>
 
-      {/* Context Menu - Compact */}
-      <Menu
-        anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
-        onClose={handleMenuClose}
-        transformOrigin={{ horizontal: "right", vertical: "top" }}
-        anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
-      >
-        <MenuItem
-          onClick={(e) => {
-            e.stopPropagation();
-            handleToggle();
-            handleMenuClose();
-          }}
-          sx={{ py: 0.75, fontSize: "0.875rem" }}
-        >
-          <ListItemIcon sx={{ minWidth: 32 }}>
-            {task.status === TaskStatus.COMPLETED ? (
-              <RadioButtonUnchecked fontSize="small" />
-            ) : (
-              <CheckCircle fontSize="small" />
-            )}
-          </ListItemIcon>
-          <ListItemText primaryTypographyProps={{ fontSize: "0.875rem" }}>
-            Toggle Status
-          </ListItemText>
-        </MenuItem>
-        <MenuItem
-          onClick={(e) => {
-            e.stopPropagation();
-            setIsEditModalOpen(true);
-            handleMenuClose();
-          }}
-          sx={{ py: 0.75, fontSize: "0.875rem" }}
-        >
-          <ListItemIcon sx={{ minWidth: 32 }}>
-            <Edit fontSize="small" />
-          </ListItemIcon>
-          <ListItemText primaryTypographyProps={{ fontSize: "0.875rem" }}>
-            Edit
-          </ListItemText>
-        </MenuItem>
-        <MenuItem
-          onClick={(e) => {
-            e.stopPropagation();
-            setIsDeleteModalOpen(true);
-            handleMenuClose();
-          }}
-          sx={{ color: "error.main", py: 0.75, fontSize: "0.875rem" }}
-        >
-          <ListItemIcon sx={{ minWidth: 32 }}>
-            <Delete fontSize="small" color="error" />
-          </ListItemIcon>
-          <ListItemText primaryTypographyProps={{ fontSize: "0.875rem" }}>
-            Delete
-          </ListItemText>
-        </MenuItem>
-      </Menu>
-
-      {/* Edit Modal - Compact */}
-      <Dialog
-        open={isEditModalOpen}
-        onClose={() => setIsEditModalOpen(false)}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle sx={{ pb: 1, py: 1.5 }}>
-          <Typography variant="h6" fontWeight={700} fontSize="1.125rem">
-            Edit Task
-          </Typography>
-        </DialogTitle>
-        <DialogContent sx={{ pt: 1.5 }}>
-          <TaskForm
-            task={task}
-            onSuccess={() => setIsEditModalOpen(false)}
-            onCancel={() => setIsEditModalOpen(false)}
-          />
-        </DialogContent>
-      </Dialog>
-
-      {/* Delete Confirmation Modal - Compact */}
-      <Dialog
-        open={isDeleteModalOpen}
-        onClose={() => setIsDeleteModalOpen(false)}
-        maxWidth="xs"
-        fullWidth
-      >
-        <DialogTitle sx={{ py: 1.5 }}>
-          <Typography variant="h6" fontWeight={700} fontSize="1.125rem">
-            Delete Task
-          </Typography>
-        </DialogTitle>
-        <DialogContent sx={{ py: 1 }}>
-          <Typography variant="body2" gutterBottom>
-            Are you sure you want to delete "{task.title}"?
-          </Typography>
+        {/* Description - Compact */}
+        {task.description && (
           <Typography
-            variant="caption"
-            color="error"
-            sx={{ mt: 0.5, fontWeight: 500, display: "block" }}
+            variant="body2"
+            color="text.secondary"
+            sx={{
+              mb: 1,
+              fontSize: "0.75rem",
+              lineHeight: 1.5,
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              display: "-webkit-box",
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: "vertical",
+            }}
           >
-            This action cannot be undone.
+            {task.description}
           </Typography>
-        </DialogContent>
-        <DialogActions sx={{ px: 2, pb: 1.5 }}>
-          <Button
-            onClick={() => setIsDeleteModalOpen(false)}
-            disabled={isDeleting}
+        )}
+
+        {/* Footer - Compact */}
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            flexWrap: "wrap",
+            gap: 0.75,
+          }}
+        >
+          <Chip
+            label={config.label}
             size="small"
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={handleDelete}
-            color="error"
-            variant="contained"
-            disabled={isDeleting}
-            size="small"
-            startIcon={isDeleting && <CircularProgress size={14} />}
-          >
-            Delete
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </>
+            sx={{
+              backgroundColor: config.bgColor,
+              color: config.color,
+              fontWeight: 600,
+              fontSize: "0.6875rem",
+              height: 20,
+              border: "none",
+            }}
+          />
+
+          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+            <Schedule sx={{ fontSize: 12, color: "text.secondary" }} />
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              fontSize="0.7rem"
+            >
+              {formatDate(task.createdAt)}
+            </Typography>
+          </Box>
+        </Box>
+      </CardContent>
+    </Card>
   );
 }
