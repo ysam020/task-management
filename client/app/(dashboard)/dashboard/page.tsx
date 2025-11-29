@@ -6,17 +6,14 @@ import { useTasks } from "@/contexts/TaskContext";
 import { LeftSidebar } from "@/components/dashboard/LeftSidebar";
 import { MainContent } from "@/components/dashboard/MainContent";
 import { RightSidebar } from "@/components/dashboard/RightSidebar";
-import { Task } from "@/lib/types";
 
 export default function DashboardPage() {
   const { fetchTasks, fetchTaskStats } = useTasks();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   useEffect(() => {
-    fetchTasks();
     fetchTaskStats();
-    // Now fetchTasks and fetchTaskStats are stable references from useCallback
-  }, [fetchTasks, fetchTaskStats]);
+  }, [fetchTaskStats]);
 
   return (
     <Box

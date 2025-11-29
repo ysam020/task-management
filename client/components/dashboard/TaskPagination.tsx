@@ -14,8 +14,8 @@ export function TaskPagination() {
 
   if (!pagination) return null;
 
-  const { page, totalPages, hasPrev, hasNext, total } = pagination;
-  console.log(pagination);
+  const { page, totalPages, hasPrev, hasNext } = pagination;
+
   const handlePageChange = (newPage: number) => {
     setFilters({ ...filters, page: newPage });
   };

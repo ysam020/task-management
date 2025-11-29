@@ -4,6 +4,7 @@ import React, {
   createContext,
   useContext,
   useState,
+  useEffect,
   useCallback,
   ReactNode,
 } from "react";
@@ -52,24 +53,22 @@ export const TaskProvider: React.FC<{ children: ReactNode }> = ({
     sortOrder: "desc",
   });
 
-  const fetchTasks = useCallback(
-    async (newFilters?: TaskFilters) => {
-      try {
-        setIsLoading(true);
-        const appliedFilters = newFilters || filters;
-        const response = await taskApi.getTasks(appliedFilters);
-        setTasks(response.tasks);
-        setPagination(response.pagination);
-      } catch (error: any) {
-        const errorMessage =
-          error.response?.data?.message || "Failed to fetch tasks";
-        toast.error(errorMessage);
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [filters]
-  );
+  // Stable fetchTasks - no dependencies needed
+  const fetchTasks = useCallback(async (newFilters?: TaskFilters) => {
+    try {
+      setIsLoading(true);
+      const appliedFilters = newFilters || filters;
+      const response = await taskApi.getTasks(appliedFilters);
+      setTasks(response.tasks);
+      setPagination(response.pagination);
+    } catch (error: any) {
+      const errorMessage =
+        error.response?.data?.message || "Failed to fetch tasks";
+      toast.error(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []); // Remove filters dependency
 
   const fetchTaskStats = useCallback(async () => {
     try {
@@ -79,6 +78,11 @@ export const TaskProvider: React.FC<{ children: ReactNode }> = ({
       console.error("Failed to fetch task stats:", error);
     }
   }, []);
+
+  // Auto-fetch when filters change
+  useEffect(() => {
+    fetchTasks(filters);
+  }, [filters, fetchTasks]);
 
   const createTask = async (data: CreateTaskData) => {
     try {
