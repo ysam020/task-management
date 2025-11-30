@@ -1,4 +1,5 @@
 import { TaskStatus } from "../types";
+import { TASK_STATUS_CONFIG } from "./constants";
 
 export const formatDate = (dateString: string): string => {
   const date = new Date(dateString);
@@ -22,43 +23,22 @@ export const formatDate = (dateString: string): string => {
 };
 
 export const getStatusColor = (status: TaskStatus): string => {
-  switch (status) {
-    case TaskStatus.PENDING:
-      return "#f59e0b";
-    case TaskStatus.IN_PROGRESS:
-      return "#8b5cf6";
-    case TaskStatus.COMPLETED:
-      return "#10b981";
-    default:
-      return "#6b7280";
-  }
+  return TASK_STATUS_CONFIG[status]?.color ?? "#6b7280";
 };
 
 export const getStatusLabel = (status: TaskStatus): string => {
-  switch (status) {
+  return TASK_STATUS_CONFIG[status]?.label ?? status;
+};
+
+export const getNextStatus = (currentStatus: TaskStatus): TaskStatus => {
+  switch (currentStatus) {
     case TaskStatus.PENDING:
-      return "Pending";
+      return TaskStatus.IN_PROGRESS;
     case TaskStatus.IN_PROGRESS:
-      return "In Progress";
+      return TaskStatus.COMPLETED;
     case TaskStatus.COMPLETED:
-      return "Completed";
+      return TaskStatus.PENDING;
     default:
-      return status;
+      return TaskStatus.PENDING;
   }
-};
-
-export const truncateText = (text: string, maxLength: number): string => {
-  if (text.length <= maxLength) return text;
-  return text.substring(0, maxLength) + "...";
-};
-
-export const debounce = <T extends (...args: any[]) => any>(
-  func: T,
-  wait: number
-): ((...args: Parameters<T>) => void) => {
-  let timeout: NodeJS.Timeout;
-  return (...args: Parameters<T>) => {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => func(...args), wait);
-  };
 };

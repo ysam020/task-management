@@ -20,6 +20,7 @@ import {
   TaskStatus,
 } from "../lib/types";
 import toast from "react-hot-toast";
+import { getNextStatus } from "@/lib/utils/helper";
 
 interface TaskContextType {
   tasks: Task[];
@@ -197,21 +198,7 @@ export const TaskProvider: React.FC<{ children: ReactNode }> = ({
     const originalTask = tasks.find((task) => task.id === id);
     if (!originalTask) return;
 
-    // Calculate the next status
-    let newStatus: TaskStatus;
-    switch (originalTask.status) {
-      case TaskStatus.PENDING:
-        newStatus = TaskStatus.IN_PROGRESS;
-        break;
-      case TaskStatus.IN_PROGRESS:
-        newStatus = TaskStatus.COMPLETED;
-        break;
-      case TaskStatus.COMPLETED:
-        newStatus = TaskStatus.PENDING;
-        break;
-      default:
-        newStatus = TaskStatus.PENDING;
-    }
+    const newStatus = getNextStatus(originalTask.status);
 
     // Optimistic update
     setTasks((prevTasks) =>

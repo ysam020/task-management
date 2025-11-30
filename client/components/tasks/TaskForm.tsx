@@ -1,9 +1,12 @@
 "use client";
 
 import { Formik, Form, Field } from "formik";
-import { TextField, MenuItem, Button, Box, Stack } from "@mui/material";
+import { MenuItem, Button, Box, Stack } from "@mui/material";
+import { Input } from "@/components/common/Input";
 import { Task, TaskStatus } from "@/lib/types";
 import { useTasks } from "@/contexts/TaskContext";
+import { useToast } from "@/hooks/useToast";
+import { TASK_STATUS_OPTIONS, SUCCESS_MESSAGES } from "@/lib/utils/constants";
 import {
   createTaskSchema,
   updateTaskSchema,
@@ -17,6 +20,7 @@ interface TaskFormProps {
 
 export function TaskForm({ task, onSuccess, onCancel }: TaskFormProps) {
   const { createTask, updateTask } = useTasks();
+  const { success, error } = useToast();
   const isEditing = !!task;
 
   const initialValues = {
@@ -33,23 +37,25 @@ export function TaskForm({ task, onSuccess, onCancel }: TaskFormProps) {
         try {
           if (isEditing) {
             await updateTask(task.id, values);
+            success(SUCCESS_MESSAGES.TASK_UPDATED);
           } else {
             await createTask(values);
+            success(SUCCESS_MESSAGES.TASK_CREATED);
           }
           onSuccess();
-        } catch (error) {
-          // Error is handled in context
+        } catch (err) {
+          error(isEditing ? "Failed to update task" : "Failed to create task");
         } finally {
           setSubmitting(false);
         }
       }}
     >
-      {({ errors, touched, isSubmitting, values, handleChange }) => (
+      {({ errors, touched, isSubmitting }) => (
         <Form>
           <Stack spacing={2.5}>
             <Field name="title">
               {({ field }: any) => (
-                <TextField
+                <Input
                   {...field}
                   fullWidth
                   label="Task Title"
@@ -63,7 +69,7 @@ export function TaskForm({ task, onSuccess, onCancel }: TaskFormProps) {
 
             <Field name="description">
               {({ field }: any) => (
-                <TextField
+                <Input
                   {...field}
                   fullWidth
                   multiline
@@ -79,7 +85,7 @@ export function TaskForm({ task, onSuccess, onCancel }: TaskFormProps) {
 
             <Field name="status">
               {({ field }: any) => (
-                <TextField
+                <Input
                   {...field}
                   select
                   fullWidth
@@ -88,12 +94,12 @@ export function TaskForm({ task, onSuccess, onCancel }: TaskFormProps) {
                   helperText={touched.status && errors.status}
                   disabled={isSubmitting}
                 >
-                  <MenuItem value={TaskStatus.PENDING}>Pending</MenuItem>
-                  <MenuItem value={TaskStatus.IN_PROGRESS}>
-                    In Progress
-                  </MenuItem>
-                  <MenuItem value={TaskStatus.COMPLETED}>Completed</MenuItem>
-                </TextField>
+                  {TASK_STATUS_OPTIONS.map((option) => (
+                    <MenuItem key={option.value} value={option.value}>
+                      {option.label}
+                    </MenuItem>
+                  ))}
+                </Input>
               )}
             </Field>
 

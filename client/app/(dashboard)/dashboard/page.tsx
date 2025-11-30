@@ -10,9 +10,9 @@ import {
 } from "@mui/material";
 import { FilterList } from "@mui/icons-material";
 import { useTasks } from "@/contexts/TaskContext";
-import { LeftSidebar } from "@/components/dashboard/LeftSidebar";
-import { MainContent } from "@/components/dashboard/MainContent";
-import { RightSidebar } from "@/components/dashboard/RightSidebar";
+import { LeftSidebar } from "@/components/layout/LeftSidebar";
+import { MainContent } from "@/components/layout/MainContent";
+import { RightSidebar } from "@/components/layout/RightSidebar";
 
 export default function DashboardPage() {
   const { fetchTaskStats } = useTasks();

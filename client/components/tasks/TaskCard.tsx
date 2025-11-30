@@ -2,26 +2,19 @@
 
 import { useState } from "react";
 import {
-  Card,
-  CardContent,
   Typography,
   Chip,
   Box,
   IconButton,
-  alpha,
   CircularProgress,
   Tooltip,
 } from "@mui/material";
-import {
-  Edit,
-  Delete,
-  Schedule,
-  CheckBox,
-  IndeterminateCheckBox,
-  CheckBoxOutlineBlank,
-} from "@mui/icons-material";
+import { Edit, Delete, Schedule } from "@mui/icons-material";
+import { Card } from "@/components/common/Card";
 import { Task, TaskStatus } from "@/lib/types";
 import { formatDate } from "@/lib/utils/helper";
+import { getStatusLabel } from "@/lib/utils/helper";
+import { TASK_STATUS_CONFIG } from "@/lib/utils/constants";
 import { useTasks } from "@/contexts/TaskContext";
 
 interface TaskCardProps {
@@ -35,29 +28,8 @@ export function TaskCard({ task, onClick, onEdit, onDelete }: TaskCardProps) {
   const { toggleTaskStatus } = useTasks();
   const [isToggling, setIsToggling] = useState(false);
 
-  // Status configuration
-  const statusConfig = {
-    [TaskStatus.PENDING]: {
-      color: "#f59e0b",
-      bgColor: alpha("#f59e0b", 0.1),
-      icon: <CheckBoxOutlineBlank sx={{ fontSize: 18 }} />,
-      label: "Pending",
-    },
-    [TaskStatus.IN_PROGRESS]: {
-      color: "#8b5cf6",
-      bgColor: alpha("#8b5cf6", 0.1),
-      icon: <IndeterminateCheckBox sx={{ fontSize: 18 }} />,
-      label: "In Progress",
-    },
-    [TaskStatus.COMPLETED]: {
-      color: "#10b981",
-      bgColor: alpha("#10b981", 0.1),
-      icon: <CheckBox sx={{ fontSize: 18 }} />,
-      label: "Completed",
-    },
-  };
-
-  const config = statusConfig[task.status];
+  const config = TASK_STATUS_CONFIG[task.status];
+  const StatusIcon = config.icon;
 
   const handleToggle = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -69,37 +41,15 @@ export function TaskCard({ task, onClick, onEdit, onDelete }: TaskCardProps) {
     }
   };
 
-  // Get the next status for tooltip
-  const getNextStatus = () => {
-    switch (task.status) {
-      case TaskStatus.PENDING:
-        return "In Progress";
-      case TaskStatus.IN_PROGRESS:
-        return "Completed";
-      case TaskStatus.COMPLETED:
-        return "Pending";
-      default:
-        return "In Progress";
-    }
-  };
-
   return (
     <Card
       onClick={onClick}
-      sx={{
-        position: "relative",
-        transition: "all 0.2s ease",
-        border: "1px solid",
-        borderColor: "divider",
-        borderRadius: 1.5,
-        boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
-        "&:hover": {
-          boxShadow: `0 6px 16px ${alpha(config.color, 0.2)}`,
-          borderColor: config.color,
-        },
-      }}
+      hoverable
+      hoverColor={config.color}
+      compact
+      noPadding
     >
-      <CardContent sx={{ p: 1.5, "&:last-child": { pb: 1.5 } }}>
+      <Box sx={{ p: 1.5 }}>
         {/* Header with Checkbox */}
         <Box
           sx={{
@@ -111,7 +61,7 @@ export function TaskCard({ task, onClick, onEdit, onDelete }: TaskCardProps) {
         >
           {/* 3-State Checkbox */}
           <Tooltip
-            title={`Click to mark as ${getNextStatus()}`}
+            title={`Click to mark as ${getStatusLabel(task.status)}`}
             placement="top"
           >
             <Box
@@ -132,7 +82,7 @@ export function TaskCard({ task, onClick, onEdit, onDelete }: TaskCardProps) {
               {isToggling ? (
                 <CircularProgress size={20} sx={{ color: config.color }} />
               ) : (
-                config.icon
+                <StatusIcon sx={{ fontSize: 18 }} />
               )}
             </Box>
           </Tooltip>
@@ -256,7 +206,7 @@ export function TaskCard({ task, onClick, onEdit, onDelete }: TaskCardProps) {
             </Typography>
           </Box>
         </Box>
-      </CardContent>
+      </Box>
     </Card>
   );
 }

@@ -7,31 +7,50 @@ import {
   Paper,
   IconButton,
   Tooltip,
+  Button,
+  Stack,
   alpha,
 } from "@mui/material";
 import { ViewModule, ViewList } from "@mui/icons-material";
+import { Modal } from "@/components/common/Modal";
 import { useTasks } from "@/contexts/TaskContext";
-import { TaskCard } from "./TaskCard";
-import { TaskPagination } from "./TaskPagination";
-import { useState, useEffect } from "react";
-
-const VIEW_MODE_STORAGE_KEY = "taskViewMode";
+import { TaskCard } from "@/components/tasks/TaskCard";
+import { TaskForm } from "@/components/tasks/TaskForm";
+import { TaskPagination } from "../tasks/TaskPagination";
+import { Task } from "@/lib/types";
+import { useState } from "react";
+import { useLocalStorage } from "@/hooks/useLocalstorage";
+import { useToast } from "@/hooks/useToast";
+import {
+  VIEW_MODES,
+  LOCAL_STORAGE_KEYS,
+  SUCCESS_MESSAGES,
+} from "@/lib/utils/constants";
 
 export function MainContent() {
-  const { tasks, isLoading, pagination } = useTasks();
-  const [viewMode, setViewMode] = useState<"grid" | "list">(() => {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem(VIEW_MODE_STORAGE_KEY);
-      return saved === "grid" || saved === "list" ? saved : "grid";
-    }
-    return "grid";
-  });
+  const { tasks, isLoading, pagination, deleteTask } = useTasks();
+  const { success, error } = useToast();
+  const [editTask, setEditTask] = useState<Task | null>(null);
+  const [deleteTaskId, setDeleteTaskId] = useState<number | null>(null);
+  const [viewMode, setViewMode] = useLocalStorage<"grid" | "list">(
+    LOCAL_STORAGE_KEYS.VIEW_MODE,
+    VIEW_MODES.GRID as "grid"
+  );
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      localStorage.setItem(VIEW_MODE_STORAGE_KEY, viewMode);
+  const handleEditClose = () => setEditTask(null);
+  const handleDeleteClose = () => setDeleteTaskId(null);
+
+  const handleConfirmDelete = async () => {
+    if (deleteTaskId) {
+      try {
+        await deleteTask(deleteTaskId);
+        success(SUCCESS_MESSAGES.TASK_DELETED);
+        setDeleteTaskId(null);
+      } catch (err) {
+        error("Failed to delete task");
+      }
     }
-  }, [viewMode]);
+  };
 
   if (isLoading) {
     return (
@@ -95,11 +114,11 @@ export function MainContent() {
         </Box>
 
         <Box sx={{ display: "flex", gap: 0.5 }}>
-          {viewMode === "grid" ? (
+          {viewMode === VIEW_MODES.GRID ? (
             <Tooltip title="List View">
               <IconButton
                 size="small"
-                onClick={() => setViewMode("list")}
+                onClick={() => setViewMode(VIEW_MODES.LIST as "list")}
                 sx={{
                   backgroundColor: "primary.main",
                   color: "white",
@@ -115,7 +134,7 @@ export function MainContent() {
             <Tooltip title="Grid View">
               <IconButton
                 size="small"
-                onClick={() => setViewMode("grid")}
+                onClick={() => setViewMode(VIEW_MODES.GRID as "grid")}
                 sx={{
                   backgroundColor: "primary.main",
                   color: "white",
@@ -182,10 +201,11 @@ export function MainContent() {
         ) : (
           <Box
             sx={{
-              display: viewMode === "grid" ? "grid" : "flex",
-              flexDirection: viewMode === "list" ? "column" : undefined,
+              display: viewMode === VIEW_MODES.GRID ? "grid" : "flex",
+              flexDirection:
+                viewMode === VIEW_MODES.LIST ? "column" : undefined,
               gridTemplateColumns:
-                viewMode === "grid"
+                viewMode === VIEW_MODES.GRID
                   ? {
                       xs: "1fr",
                       sm: "repeat(2, 1fr)",
@@ -196,7 +216,12 @@ export function MainContent() {
             }}
           >
             {tasks.map((task) => (
-              <TaskCard key={task.id} task={task} />
+              <TaskCard
+                key={task.id}
+                task={task}
+                onEdit={() => setEditTask(task)}
+                onDelete={() => setDeleteTaskId(task.id)}
+              />
             ))}
           </Box>
         )}
@@ -216,6 +241,44 @@ export function MainContent() {
           <TaskPagination />
         </Box>
       )}
+
+      {/* Edit Task Modal */}
+      <Modal open={!!editTask} onClose={handleEditClose} title="Edit Task">
+        {editTask && (
+          <TaskForm
+            task={editTask}
+            onSuccess={handleEditClose}
+            onCancel={handleEditClose}
+          />
+        )}
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        open={!!deleteTaskId}
+        onClose={handleDeleteClose}
+        title="Delete Task"
+        maxWidth="xs"
+        actions={
+          <Stack direction="row" spacing={1.5}>
+            <Button variant="outlined" onClick={handleDeleteClose}>
+              Cancel
+            </Button>
+            <Button
+              variant="contained"
+              color="error"
+              onClick={handleConfirmDelete}
+            >
+              Delete
+            </Button>
+          </Stack>
+        }
+      >
+        <Typography>
+          Are you sure you want to delete this task? This action cannot be
+          undone.
+        </Typography>
+      </Modal>
     </Box>
   );
 }

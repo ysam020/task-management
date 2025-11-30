@@ -2,8 +2,9 @@
 
 import { Formik, Form, Field } from "formik";
 import Link from "next/link";
-import { Box, Typography, TextField, Button, Stack } from "@mui/material";
+import { Box, Typography, Button, Stack } from "@mui/material";
 import { HowToRegOutlined } from "@mui/icons-material";
+import { Input } from "@/components/common/Input";
 import { useAuth } from "@/contexts/AuthContext";
 import { registerSchema } from "@/lib/validations/auth.schema";
 
@@ -54,7 +55,7 @@ export default function RegisterPage() {
             <Stack spacing={2.5}>
               <Field name="name">
                 {({ field }: any) => (
-                  <TextField
+                  <Input
                     {...field}
                     type="text"
                     label="Full Name"
@@ -69,7 +70,7 @@ export default function RegisterPage() {
 
               <Field name="email">
                 {({ field }: any) => (
-                  <TextField
+                  <Input
                     {...field}
                     type="email"
                     label="Email Address"
@@ -84,11 +85,12 @@ export default function RegisterPage() {
 
               <Field name="password">
                 {({ field }: any) => (
-                  <TextField
+                  <Input
                     {...field}
                     type="password"
                     label="Password"
                     placeholder="Create a strong password"
+                    showPasswordToggle
                     fullWidth
                     error={touched.password && Boolean(errors.password)}
                     helperText={touched.password && errors.password}

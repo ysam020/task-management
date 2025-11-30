@@ -2,15 +2,9 @@
 
 import { Formik, Form, Field } from "formik";
 import Link from "next/link";
-import {
-  Box,
-  Typography,
-  TextField,
-  Button,
-  Stack,
-  alpha,
-} from "@mui/material";
+import { Box, Typography, Button, Stack } from "@mui/material";
 import { LoginOutlined } from "@mui/icons-material";
+import { Input } from "@/components/common/Input";
 import { useAuth } from "@/contexts/AuthContext";
 import { loginSchema } from "@/lib/validations/auth.schema";
 
@@ -61,7 +55,7 @@ export default function LoginPage() {
             <Stack spacing={2.5}>
               <Field name="email">
                 {({ field }: any) => (
-                  <TextField
+                  <Input
                     {...field}
                     type="email"
                     label="Email Address"
@@ -76,11 +70,12 @@ export default function LoginPage() {
 
               <Field name="password">
                 {({ field }: any) => (
-                  <TextField
+                  <Input
                     {...field}
                     type="password"
                     label="Password"
                     placeholder="Enter your password"
+                    showPasswordToggle
                     fullWidth
                     error={touched.password && Boolean(errors.password)}
                     helperText={touched.password && errors.password}
